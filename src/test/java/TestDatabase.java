@@ -1,6 +1,4 @@
-package src.test.java;
 import org.junit.jupiter.apiTest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDatabase {
