@@ -1,29 +1,43 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
+
+/**
+ * Reservation Manager Project
+ *
+ * This deals with the User
+ * Usernames and passwords are stored in the "Usernames.txt" file
+ * Has methods for creating accounts, logging in, and deleting accounts
+
+ * @author Maximus Puckett
+ *
+ * @version November 8, 2025
+ *
+ */
 
 public class User implements InterfaceUser {
     private String username;
     private String password;
+    private ArrayList<Reservation> reservations;
+    private int reservationNumber;
 
-    public User(String username, String password) {
+    private final String usernameFilename = "Usernames.txt";
+
+    public User(String username, String password,  ArrayList<Reservation> reservations, int reservationNumber) {
         this.username = username;
         this.password = password;
+        this.reservations = reservations;
+        this.reservationNumber = reservationNumber;
     }
-    Scanner scanner = new Scanner(System.in); // I implemented the scanner to make testing easier, feel free to remove
 
     public boolean createAccount(String username, String password) { // Creates account and adds it to the Usernames.txt file and checks if username and password are valid
-        System.out.println("Create your username: ");
-        username = scanner.nextLine();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("Usernames.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(usernameFilename));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(": ");
                 String existingUsername = parts[0];
                 if (existingUsername.equals(username)) {
-                    System.out.println("Username already exists!");
                     return false;
                 }
 
@@ -34,26 +48,20 @@ public class User implements InterfaceUser {
 
 
         if (username.length() < 3 || username.length() > 16) {
-            System.out.println("Invalid username! Username should be between 3 and 16 characters.");
             return false;
         } if (!username.matches("[a-zA-Z0-9]+")) { // Checks to make sure there are no special characters
-            System.out.println("Invalid username! Username should only contain letters and numbers.");
             return false;
         }
-        System.out.println("Create your password: ");
-        password = scanner.nextLine();
 
         if (password.length() < 8 || password.length() > 20) {
-            System.out.println("Invalid password! Password should be between 8 and 20 characters.");
             return false;
         } if (password.contains("\\") || (password.contains(":"))) {
-            System.out.println("Invalid password! Illegal characters are not allowed.");
             return false;
         }
         String data = (username + ": " + password);
 
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("Usernames.txt", true));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(usernameFilename, true));
             bw.write(data);
             bw.newLine();
             bw.close();
@@ -66,11 +74,9 @@ public class User implements InterfaceUser {
 
     @Override
     public boolean login(String username, String password) { // Asks for username and password and checks if they're valid
-        System.out.println("Enter your username: ");
-        username = scanner.nextLine();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("Usernames.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(usernameFilename));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(": ");
@@ -78,17 +84,11 @@ public class User implements InterfaceUser {
                 String existingPassword = parts[1];
 
                 if (username.equals(existingUsername)) {
-                    System.out.println("Enter your password: ");
-                    password = scanner.nextLine();
                     if (password.equals(existingPassword)) {
-                        System.out.println("Logged in successfully!");
                         return true;
-                    } else {
-                        System.out.println("Incorrect password!");
                     }
                 }
             }
-            System.out.println("Couldn't find username!");
             return false;
 
 
@@ -103,23 +103,21 @@ public class User implements InterfaceUser {
     public boolean deleteAccount(String username) { // removes the input username and password line from the Usernames.txt file
 
         ArrayList<String> lines = new ArrayList<>();
-        boolean accountExists = false;
-        System.out.println("Enter your username: "); // can be removed added for testing
-        username = scanner.nextLine(); // can be removed added for testing
+        boolean accountFound = false;
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("Usernames.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(usernameFilename));
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains(username)) {
-                    accountExists = true;
+                   accountFound = true;
                 } else {
                     lines.add(line);
                 }
             }
             br.close();
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter("Usernames.txt"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(usernameFilename));
 
             for (int i = 0; i < lines.size(); i++) {
                 bw.write(lines.get(i));
@@ -132,11 +130,25 @@ public class User implements InterfaceUser {
         }
 
 
-        return false;
+        return accountFound;
     }
-    public static void main(String[] args) { // Added to test methods
-        User user = new User("", "");
-        boolean result = user.createAccount("", ""); // change methods to test
-        System.out.println("Account created result: " + result);
+
+    public ArrayList<Reservation> getReservations() {
+        return reservations;
     }
+
+    public void setReservations(ArrayList<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
+    public int getReservationNumber() {
+        return reservationNumber;
+    }
+    public void setReservationNumber(int reservationNumber) {
+        this.reservationNumber = reservationNumber;
+    }
+    public String getUsername() {
+        return username;
+    }
+
 }
