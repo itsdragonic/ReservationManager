@@ -110,7 +110,7 @@ public class User implements InterfaceUser {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains(username)) {
-                   accountFound = true;
+                    accountFound = true;
                 } else {
                     lines.add(line);
                 }
@@ -149,6 +149,12 @@ public class User implements InterfaceUser {
     }
     public String getUsername() {
         return username;
+    }
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
+    }
+    public void removeReservation(Reservation reservation) {
+        reservations.remove(reservation);
     }
 
 }
