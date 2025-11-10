@@ -1,9 +1,9 @@
 # ReservationManager (Option 1)
-Team members: Maximus Puckett, Zachary George, Jeremiah Tomasello, Fredrick Zawislak
+Team members: Maximus Puckett, Jeremiah Tomasello, Fredrick Zawislak
 
 | Team Member       | Role                                         | Contributions                                                                  |
 |-------------------|----------------------------------------------|--------------------------------------------------------------------------------|
-| Zachary George    | Project lead, Develop methods for application | Implemented `Database`,`Reservation`,`ReservationManager`, and `Table` classes |
+| Jeremiah Tomasello    | Project lead, Develop methods for application | Implemented `Database`,`Reservation`,`ReservationManager`, and `Table` classes |
 | Maximus Puckett   | Develop methods for user                     | Implemented `User` class                                                       |
 | Fredrick Zawislak | Interface designer, Test cases               | Implemented test cases, created the interfaces, and wrote README               |
 
@@ -29,9 +29,10 @@ _(in alphabetical order)_
 ### Interfaces
 | Interface              | Purpose                                                   |
 | ---------------------- | --------------------------------------------------------- |
-| `DatabaseInterface`    | Declares all database operations and persistence methods. |
-| `ReservationInterface` | Declares getter/setter structure for reservations.        |
-| `TableInterface`       | Declares table operations such as seat management.        |
+| `InterfaceDatabase`    | Declares all database operations and persistence methods. |
+| `InterfaceReservation` | Declares getter/setter structure for reservations.        |
+| `InterfaceTable`       | Declares table operations such as seat management.        |
+| `...`       | ...        |
 
 ### How to Run
 
