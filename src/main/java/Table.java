@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *
  */
 
-public class Table {
+public class Table implements InterfaceTable {
     private int tableNum;
     private int seats;
     private ArrayList<Reservation> reservations;

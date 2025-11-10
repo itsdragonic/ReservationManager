@@ -10,7 +10,7 @@
  *
  */
 
-public class Reservation {
+public class Reservation implements InterfaceReservation {
     private String userBooking;
     private int tableNum;
     private String day;

@@ -1,5 +1,11 @@
 import java.util.List;
 
+/*
+ * Server stuff that will be implemented in phase 2
+ *
+ *
+ */
+
 public interface InterfaceManagement {
     void setHours(String openTime, String closeTime);
     void setSeatingArrangement(List<String> seatingLayout);
