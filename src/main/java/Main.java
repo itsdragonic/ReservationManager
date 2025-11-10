@@ -50,12 +50,10 @@ public class Main {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        // Use the User.login method which checks usernames file
         User temp = new User("", "", new ArrayList<Reservation>(), 0);
         boolean ok = temp.login(username, password);
         if (ok) {
             currentUser = username;
-            // If user object exists in memory, keep it; otherwise add a lightweight one
             boolean found = false;
             for (User u : users) {
                 if (u.getUsername().equals(username)) {
@@ -79,7 +77,6 @@ public class Main {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        // Use the createAccount() method for validation and file writing
         User newUser = new User(username, password, new ArrayList<Reservation>(), 0);
         boolean success = newUser.createAccount(username, password);
 
@@ -153,7 +150,6 @@ public class Main {
             return;
         }
 
-        // Correct parameter order: (String username, int tableNum, String day, int time, int partySize)
         Reservation res = new Reservation(name, table, date, time, guests);
         if (db.addReservation(res)) {
             System.out.println("Reservation added successfully!");
@@ -184,7 +180,7 @@ public class Main {
         }
         System.out.print("Are you sure you want to delete your account? Type 'YES' to confirm: ");
         String confirm = scanner.nextLine();
-        if (!"YES".equals(confirm)) {
+        if (!"YES".equalsIgnoreCase(confirm)) {
             System.out.println("Account deletion cancelled.");
             return;
         }
@@ -212,7 +208,6 @@ public class Main {
 
     private static void viewReservations() {
         System.out.println("\nAll Reservations (from reservations.txt):");
-        // Database does not expose a getAllReservations() method, so read the file directly.
         try (BufferedReader br = new BufferedReader(new FileReader("reservations.txt"))) {
             String line;
             boolean any = false;

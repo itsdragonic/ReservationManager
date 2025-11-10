@@ -83,6 +83,11 @@ public class User implements InterfaceUser {
             BufferedReader br = new BufferedReader(new FileReader(usernameFilename));
             String line;
             while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+
                 String[] parts = line.split(": ");
                 String existingUsername = parts[0];
                 String existingPassword = parts[1];

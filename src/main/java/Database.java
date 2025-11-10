@@ -26,6 +26,9 @@ public class Database implements InterfaceDatabase {
     public Database() {
         this.tables = new ArrayList<>();
         this.reservations = new ArrayList<>();
+
+        createReservations();
+        createTables(this.reservations);
     }
 
     // Call before CreateTables()
