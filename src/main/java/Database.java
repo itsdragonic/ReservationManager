@@ -23,6 +23,11 @@ public class Database implements InterfaceDatabase {
     private final String reservationsFilename = "reservations.txt";
     private final String seatingFilename = "seating.txt";
 
+    public Database() {
+        this.tables = new ArrayList<>();
+        this.reservations = new ArrayList<>();
+    }
+
     // Call before CreateTables()
     public void createReservations() {
         // Fill reservations array
@@ -82,7 +87,10 @@ public class Database implements InterfaceDatabase {
         }
     }
 
-    public void addReservation(Reservation reservation) {
+    public boolean addReservation(Reservation reservation) {
+        if (this.reservations == null) this.reservations = new ArrayList<>();
+        this.reservations.add(reservation);
+
         // Create resources. Append mode true so we can add to preexisting reservations
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(reservationsFilename, true))) {
             // Check all tables for corresponding table and add reservation
@@ -93,12 +101,28 @@ public class Database implements InterfaceDatabase {
             }
 
             bw.write(reservation.getReservationId() + "\n");
+            return true;
         } catch (IOException e) {
             e.printStackTrace(); // Could be replaced with some kind of "adding reservation error"
+            return false;
         }
     }
 
-    public void cancelReservation(Reservation reservation) {
+    public Reservation getReservation(String reservationId) {
+        if (reservationId == null || reservations == null) return null;
+        for (Reservation r : reservations) {
+            if (r != null && reservationId.equals(r.getReservationId())) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    public boolean cancelReservation(Reservation reservation) {
+        if (this.reservations != null) {
+            reservations.removeIf(r -> r.compareWith(reservation));
+        }
+
         // Create resources. Append mode false so we can neglect to re add the cancelled reservation
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(reservationsFilename, false))) {
             // Check all tables for corresponding table and remove it
@@ -114,9 +138,10 @@ public class Database implements InterfaceDatabase {
                     bw.write(currentReservation.getReservationId() + "\n");
                 }
             }
-
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

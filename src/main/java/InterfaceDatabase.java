@@ -15,8 +15,9 @@ public interface InterfaceDatabase {
     void createReservations();
     void createTables(ArrayList<Reservation> reservations);
 
-    void addReservation(Reservation reservation);
-    void cancelReservation(Reservation reservation);
+    boolean addReservation(Reservation reservation);
+    boolean cancelReservation(Reservation reservation);
+    Reservation getReservation(String reservationId);
 
     Table getTableByIndex(int tableNum);
     ArrayList<Table> getTablesBySeats(int seats);

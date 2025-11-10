@@ -25,6 +25,10 @@ public class Reservation {
         this.partySize = partySize;
     }
 
+    public String getName() {
+        return userBooking;
+    }
+
     public int getTableNum() {
         return tableNum;
     }
