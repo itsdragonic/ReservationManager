@@ -33,6 +33,8 @@ _(in alphabetical order)_
 | `ReservationInterface` | Declares getter/setter structure for reservations.        |
 | `TableInterface`       | Declares table operations such as seat management.        |
 
+### How to Run
+
 ### Test Cases
 
 ### Submission Details
@@ -41,5 +43,7 @@ _(in alphabetical order)_
 | **Code & README**    | [Team Member Name] on Vocareum                 |
 | **Git Repository**   | Private GitHub Repository cloned into Vocareum |
 | **Peer Evaluations** | All members completed by deadline              |
+
+### Extra Notes
 
 ## --- End of Phase 1 ---

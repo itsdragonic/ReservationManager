@@ -11,6 +11,7 @@ public interface InterfaceUser {
 
     void setReservationNumber(int reservationNumber);
     String getUsername();
+    String getPassword();
     void addReservation(Reservation reservation);
     void removeReservation(Reservation reservation);
 }
