@@ -56,6 +56,8 @@ _(in alphabetical order)_
 | `InterfaceUser`               | Declares all getter/setter, creation/deletion, and persistence methods. |
 
 ### How to Run
+In any IDE (typically IntelliJ), you can run the file from Main.java and interact with the database through the console as of now.
+You can also go through and run the test cases inside the test folder.
 1. User can choose to either log in to an existing account, sign up to create a new account, or exit the program
    1. If the user tries to log in, they are prompted with entering their username and password, and if the account exists, are able to
       proceed with the program.
