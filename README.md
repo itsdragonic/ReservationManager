@@ -79,7 +79,7 @@ For our test cases, we sampled creating an editing a Database class. Firstly, we
 ### Submission Details
 | Deliverable          | Submitted By                                   |
 | -------------------- | ---------------------------------------------- |
-| **Code & README**    | [Team Member Name] on Vocareum & Brightspace   |
+| **Code & README**    | Jeremiah Tomasello on Vocareum & Brightspace   |
 | **Git Repository**   | Private GitHub Repository cloned into Vocareum |
 | **Peer Evaluations** | All members completed by deadline              |
 
