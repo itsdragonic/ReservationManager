@@ -1,15 +1,11 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
  * Reservation Manager Project
  *
  * This deals with the User
- * Usernames and passwords are stored in the "Usernames.txt" file
+ * Usernames and passwords are stored in the "usernames.txt" file
  * Has methods for creating accounts, logging in, and deleting accounts
 
  * @author Maximus Puckett
@@ -24,7 +20,7 @@ public class User implements InterfaceUser {
     private ArrayList<Reservation> reservations;
     private int reservationNumber;
 
-    private final String usernameFilename = "Usernames.txt";
+    private final String usernameFilename = "usernames.txt";
 
     public User(String username, String password,  ArrayList<Reservation> reservations, int reservationNumber) {
         this.username = username;
@@ -33,12 +29,16 @@ public class User implements InterfaceUser {
         this.reservationNumber = reservationNumber;
     }
 
-    public boolean createAccount(String username, String password) { // Creates account and adds it to the Usernames.txt file and checks if username and password are valid
+    public boolean createAccount(String username, String password) { // Creates account and adds it to the usernames.txt file and checks if username and password are valid
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(usernameFilename));
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty() || !line.contains(":")) {
+                    continue;
+                }
+
                 String[] parts = line.split(": ");
                 String existingUsername = parts[0];
                 if (existingUsername.equals(username)) {
@@ -66,8 +66,8 @@ public class User implements InterfaceUser {
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(usernameFilename, true));
-            bw.write(data);
             bw.newLine();
+            bw.write(data);
             bw.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -104,35 +104,42 @@ public class User implements InterfaceUser {
     }
 
     @Override
-    public boolean deleteAccount(String username) { // removes the input username and password line from the Usernames.txt file
-
+    public boolean deleteAccount(String username) {
         ArrayList<String> lines = new ArrayList<>();
         boolean accountFound = false;
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(usernameFilename));
+        try (BufferedReader br = new BufferedReader(new FileReader(usernameFilename))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.contains(username)) {
+                line = line.trim();
+
+                if (line.isEmpty()) {
+                    lines.add("");
+                    continue;
+                }
+
+                String[] parts = line.split(":", 2);
+                String currentUsername = parts[0].trim();
+
+                if (currentUsername.equals(username)) {
                     accountFound = true;
+                    lines.add("");
                 } else {
                     lines.add(line);
                 }
             }
-            br.close();
-
-            BufferedWriter bw = new BufferedWriter(new FileWriter(usernameFilename));
-
-            for (int i = 0; i < lines.size(); i++) {
-                bw.write(lines.get(i));
-                bw.newLine();
-            }
-            bw.close();
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(usernameFilename))) {
+            for (String l : lines) {
+                bw.write(l);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return accountFound;
     }

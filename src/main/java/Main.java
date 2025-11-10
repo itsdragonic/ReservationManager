@@ -1,8 +1,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class Main {
     private static Database db = new Database();
@@ -52,32 +50,45 @@ public class Main {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        for (User user : users) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                currentUser = username;
-                System.out.println("Login successful! Welcome, " + username);
-                return;
+        // Use the User.login method which checks usernames file
+        User temp = new User("", "", new ArrayList<Reservation>(), 0);
+        boolean ok = temp.login(username, password);
+        if (ok) {
+            currentUser = username;
+            // If user object exists in memory, keep it; otherwise add a lightweight one
+            boolean found = false;
+            for (User u : users) {
+                if (u.getUsername().equals(username)) {
+                    found = true;
+                    break;
+                }
             }
+            if (!found) {
+                users.add(new User(username, password, new ArrayList<Reservation>(), 0));
+            }
+            System.out.println("Login successful! Welcome, " + username);
+        } else {
+            System.out.println("Invalid username or password.");
         }
-        System.out.println("Invalid username or password.");
     }
 
     private static void signup() {
         System.out.print("Enter new username: ");
         String username = scanner.nextLine();
 
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                System.out.println("Username already exists.");
-                return;
-            }
-        }
-
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
-        // Use the 4-arg constructor that exists in your User class
-        users.add(new User(username, password, new ArrayList<Reservation>(), 0));
-        System.out.println("Sign up successful! You can now log in.");
+
+        // Use the createAccount() method for validation and file writing
+        User newUser = new User(username, password, new ArrayList<Reservation>(), 0);
+        boolean success = newUser.createAccount(username, password);
+
+        if (success) {
+            users.add(newUser);
+            System.out.println("Sign up successful! You can now log in.");
+        } else {
+            System.out.println("Sign up failed. Username may already exist or input is invalid.");
+        }
     }
 
     private static void showMainMenu() {
@@ -85,6 +96,7 @@ public class Main {
         System.out.println("2. Remove Reservation");
         System.out.println("3. View All Reservations");
         System.out.println("4. Logout");
+        System.out.println("5. Delete Account");
         System.out.print("Choose an option: ");
 
         String choice = scanner.nextLine();
@@ -102,6 +114,9 @@ public class Main {
             case "4":
                 currentUser = null;
                 System.out.println("Logged out successfully.");
+                break;
+            case "5":
+                deleteAccountChoice();
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
@@ -159,6 +174,39 @@ public class Main {
             System.out.println("Reservation removed.");
         } else {
             System.out.println("Failed to remove reservation.");
+        }
+    }
+
+    private static void deleteAccountChoice() {
+        if (currentUser == null) {
+            System.out.println("No one is logged in.");
+            return;
+        }
+        System.out.print("Are you sure you want to delete your account? Type 'YES' to confirm: ");
+        String confirm = scanner.nextLine();
+        if (!"YES".equals(confirm)) {
+            System.out.println("Account deletion cancelled.");
+            return;
+        }
+
+        // Find user in memory (if present) and call deleteAccount
+        User target = null;
+        for (User u : users) {
+            if (u.getUsername().equals(currentUser)) {
+                target = u;
+                break;
+            }
+        }
+        // If not found in memory, create a temp User to call deleteAccount
+        if (target == null) target = new User(currentUser, "", new ArrayList<Reservation>(), 0);
+
+        boolean deleted = target.deleteAccount(currentUser);
+        if (deleted) {
+            users.removeIf(u -> u.getUsername().equals(currentUser));
+            System.out.println("Account deleted successfully.");
+            currentUser = null;
+        } else {
+            System.out.println("Account deletion failed (account may not exist).");
         }
     }
 
