@@ -19,7 +19,7 @@ public class Table implements InterfaceTable {
     private ArrayList<Reservation> reservations;
 
     //Unique table
-    public Table(int tableNum, int seats, ArrayList<Reservation> reservation) {
+    public Table(int tableNum, int seats, ArrayList<Reservation> reservations) {
         this.tableNum = tableNum;
         this.seats = seats;
         this.reservations = reservations;

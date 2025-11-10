@@ -7,11 +7,12 @@ public class Main {
     private static ArrayList<User> users = new ArrayList<>();
     private static String currentUser;
     private static Scanner scanner = new Scanner(System.in);
+    private static boolean running = true;
 
     public static void main(String[] args) {
         System.out.println("Welcome to Reservation Manager!");
 
-        while (true) {
+        while (running) {
             if (currentUser == null) {
                 showLoginMenu();
             } else {
@@ -37,7 +38,7 @@ public class Main {
                 break;
             case "3":
                 System.out.println("Goodbye!");
-                System.exit(0);
+                running = false;
                 return;
             default:
                 System.out.println("Invalid option. Please try again.");

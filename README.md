@@ -47,13 +47,13 @@ _(in alphabetical order)_
       in either account creation/deletion.
 
 ### Interfaces
-| Interface                   | Purpose                                                                 |
-| --------------------------- | ----------------------------------------------------------------------- |
-| `InterfaceDatabase`         | Declares all database operations and persistence methods.               |
-| `InterfaceReservation`      | Declares getter/setter structure for reservations.                      |
-| `InterfaceReservationMager` | Declares creation/deletion methods for reservations.                    |
-| `InterfaceTable`            | Declares table operations such as seat management.                      |
-| `InterfaceUser`             | Declares all getter/setter, creation/deletion, and persistence methods. |
+| Interface                     | Purpose                                                                 |
+|-------------------------------| ----------------------------------------------------------------------- |
+| `InterfaceDatabase`           | Declares all database operations and persistence methods.               |
+| `InterfaceReservation`        | Declares getter/setter structure for reservations.                      |
+| `InterfaceReservationManager` | Declares creation/deletion methods for reservations.                    |
+| `InterfaceTable`              | Declares table operations such as seat management.                      |
+| `InterfaceUser`               | Declares all getter/setter, creation/deletion, and persistence methods. |
 
 ### How to Run
 1. User can choose to either log in to an existing account, sign up to create a new account, or exit the program
@@ -74,7 +74,7 @@ _(in alphabetical order)_
       database
 
 ### Test Cases
-For our test cases, we sampled creating an editing a Database class. Firstly, we tested whether Table objects could be created with the specifications of there being two tables with four seats each. Then, to create a reservation, we created a test case for an example user with test values for their reservation to be created successfully. Additionally, we did tests on whether (after the reservation had been created) we could access and cancel a reservation. Finally, we also have test cases in the event that a reservation or any of its components can handle null or unexpected input values.
+For test cases, we have test files for each of the (current 6) classes. For our test cases, we sampled creating an editing a Database class. Firstly, we tested whether Table objects could be created with the specifications of there being two tables with four seats each. Then, to create a reservation, we created a test case for an example user with test values for their reservation to be created successfully. Additionally, we did tests on whether (after the reservation had been created) we could access and cancel a reservation. Finally, we also have test cases in the event that a reservation or any of its components can handle null or unexpected input values. This is just one example of the many test cases we have for each of the methods.
 
 ### Submission Details
 | Deliverable          | Submitted By                                   |
@@ -84,5 +84,8 @@ For our test cases, we sampled creating an editing a Database class. Firstly, we
 | **Peer Evaluations** | All members completed by deadline              |
 
 ### Extra Notes
+- Our code should be thread safe in its current form.
+- The current GUI via console is subject to change.
+- InterfaceManagement.java will be handled in phase two.
 
 ## --- End of Phase 1 ---
