@@ -4,6 +4,15 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
 
+/**
+ * TestTable.java
+ *
+ * Unit tests for the Table class
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
+ */
+
 public class TestTable {
     private Table table;
     private ArrayList<Reservation> list;

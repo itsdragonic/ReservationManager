@@ -4,6 +4,15 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import java.io.*;
 
+/**
+ * TestDatabase.java
+ *
+ * Tests the methods and objects in Database.
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
+ */
+
 public class TestDatabase {
     private Database db;
     private static final String TEST_NAME = "John Purdue";

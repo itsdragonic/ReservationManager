@@ -2,6 +2,15 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.io.*;
 
+/**
+ * Main.java
+ *
+ * Current way for interacting with the database is through the console.
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
+ */
+
 public class Main {
     private static Database db = new Database();
     private static ArrayList<User> users = new ArrayList<>();

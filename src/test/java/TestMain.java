@@ -8,13 +8,19 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 /**
+ * TestMain.java
+ *
  * Tests for Main using real Main.main() with simulated input.
  *
  * Notes:
  * - Main uses several private static fields (db, scanner, users, currentUser, running).
  *   We reset those fields via reflection before each test so tests are isolated.
  * - seating.txt and usernames.txt are created in setUp() because Database and User read them.
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
  */
+
 public class TestMain {
 
     private final File seatingFile = new File("seating.txt");

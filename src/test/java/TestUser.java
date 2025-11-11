@@ -6,6 +6,15 @@ import static org.junit.Assert.*;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * TestUser.java
+ *
+ * Unit tests for the User class
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
+ */
+
 public class TestUser {
 
     private final File usernamesFile = new File("usernames.txt");

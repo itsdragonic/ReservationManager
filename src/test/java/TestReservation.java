@@ -4,8 +4,14 @@ import org.junit.After;
 import static org.junit.Assert.*;
 
 /**
+ * TestReservation.java
+ *
  * Unit tests for the Reservation class
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
  */
+
 public class TestReservation {
 
     private Reservation res;

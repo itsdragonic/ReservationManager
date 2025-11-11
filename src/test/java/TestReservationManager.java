@@ -6,6 +6,15 @@ import static org.junit.Assert.*;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * TestReservationManager.java
+ *
+ * Unit tests for the ReservationManager class
+ *
+ * @author Fredrick Zawislak
+ * @version 11/10/2025
+ */
+
 public class TestReservationManager {
 
     private ReservationManager manager;
