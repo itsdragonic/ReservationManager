@@ -21,8 +21,8 @@ public class TestDatabase {
     private static final int TEST_TIME = 1300;
     private static final int TEST_GUESTS = 4;
 
-    private final File reservationsFile = new File("reservations.txt");
-    private final File seatingFile = new File("seating.txt");
+    private final File reservationsFile = new File("src/main/reservations.txt");
+    private final File seatingFile = new File("src/main/seating.txt");
 
     @Before
     public void setUp() throws Exception {

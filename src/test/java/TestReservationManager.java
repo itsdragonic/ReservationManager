@@ -28,8 +28,8 @@ public class TestReservationManager {
     private static final int TIME = 1830;
     private static final int PARTY = 3;
 
-    private final File reservationsFile = new File("reservations.txt");
-    private final File seatingFile = new File("seating.txt");
+    private final File reservationsFile = new File("src/main/reservations.txt");
+    private final File seatingFile = new File("src/main/seating.txt");
     private final File usernamesFile = new File("usernames.txt");
 
     @Before

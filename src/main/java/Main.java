@@ -218,7 +218,7 @@ public class Main {
 
     private static void viewReservations() {
         System.out.println("\nAll Reservations (from reservations.txt):");
-        try (BufferedReader br = new BufferedReader(new FileReader("reservations.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/reservations.txt"))) {
             String line;
             boolean any = false;
             while ((line = br.readLine()) != null) {

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 
 public class TestMain {
 
-    private final File seatingFile = new File("seating.txt");
-    private final File reservationsFile = new File("reservations.txt");
+    private final File seatingFile = new File("src/main/seating.txt");
+    private final File reservationsFile = new File("src/main/reservations.txt");
     private final File usernamesFile = new File("usernames.txt");
 
     private final PrintStream originalOut = System.out;
