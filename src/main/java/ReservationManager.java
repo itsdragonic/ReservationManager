@@ -12,15 +12,6 @@ import java.util.ArrayList;
  */
 
 public class ReservationManager implements InterfaceReservationManager {
-    /*
-    * Instructions for new user methods:
-    * The User class needs to have an ArrayList variable to hold all the Reservations it currently has booked
-    * There needs to be corresponding getter/setter methods for editing this ArrayList
-    * Additionally, users also must have a reservationNumber variable so they can have unique reservations to be differentiated between
-    * Thanks!!!
-    * */
-
-
     public void createReservation(Database database, User user, int tableNum, String date, int time, int partySize) {
         Reservation newReservation = new Reservation(user.getUsername(), tableNum, date, time, partySize);
         user.addReservation(newReservation);

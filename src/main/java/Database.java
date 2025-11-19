@@ -18,6 +18,7 @@ import java.util.ArrayList;
 public class Database implements InterfaceDatabase {
     private ArrayList<Table> tables;
     private ArrayList<Reservation> reservations;
+    private int biggestSeating = 0;
     private final int maxReservationLength = 2; // Hours
 
     private final String reservationsFilename = "reservations.txt";
@@ -67,6 +68,9 @@ public class Database implements InterfaceDatabase {
                 int numTables = Integer.parseInt(line.split(":")[1]);
                 int numSeats = Integer.parseInt(line.split(":")[3]);
 
+                if (numSeats > biggestSeating)
+                    biggestSeating = numSeats;
+
                 // Add the corresponding table size to tables by quantity
                 for (int i = 0; i < numTables; i++) {
                     // Check if any of these tables hold reservations, then add them to an array to be added to the table
@@ -92,6 +96,14 @@ public class Database implements InterfaceDatabase {
 
     public boolean addReservation(Reservation reservation) {
         if (this.reservations == null) this.reservations = new ArrayList<>();
+
+        //Cross-check other reservations before proceeding
+        for (Reservation r : reservations) {
+            if (r.getDay().equals(reservation.getDay()) && Math.abs(r.getTime() - reservation.getTime()) < maxReservationLength) {
+                return false;
+            }
+        }
+
         this.reservations.add(reservation);
 
         // Create resources. Append mode true so we can add to preexisting reservations
@@ -109,6 +121,10 @@ public class Database implements InterfaceDatabase {
             e.printStackTrace(); // Could be replaced with some kind of "adding reservation error"
             return false;
         }
+    }
+
+    public ArrayList<Reservation> getReservations() {
+        return reservations;
     }
 
     public Reservation getReservation(String reservationId) {
@@ -136,7 +152,7 @@ public class Database implements InterfaceDatabase {
             }
 
             for (Reservation currentReservation : reservations) {
-                // As long as it's not the cancelled reservation, readd it to reservations.txt
+                // As long as it's not the cancelled reservation, read it to reservations.txt
                 if (!currentReservation.compareWith(reservation)) {
                     bw.write(currentReservation.getReservationId() + "\n");
                 }
@@ -193,5 +209,9 @@ public class Database implements InterfaceDatabase {
         }
 
         return availableTables;
+    }
+
+    public int getBiggestSeating() {
+        return biggestSeating;
     }
 }

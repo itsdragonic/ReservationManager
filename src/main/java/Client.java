@@ -3,11 +3,25 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Reservation Manager Project
+ *
+ * Client side interface for the project
+ * Interacts with Server.java on the port 1234
+ * Most implementation of functions can be seen through corresponding switch cases in Server.java
+ *
+ * @author Jeremiah Tomasello
+ *
+ * @version November 18, 2025
+ *
+ */
+
 public class Client {
     private static Scanner scanner = new Scanner(System.in);
     private static User currentUser;
     private static boolean running = true;
 
+    // This menu is what is always first shown
     public static void signedOutMenu(Socket socket) {
         System.out.println("\n1. Login");
         System.out.println("2. Sign Up");
@@ -37,15 +51,17 @@ public class Client {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
+            // Send login info to Server to confirm
             writer.println("login");
             writer.println(username);
             writer.println(password);
             writer.flush();
 
+            // Compare server output
             String result = reader.readLine();
 
             if (result.equals("success")) {
-                currentUser = new User("", "", new ArrayList<Reservation>(), 0);
+                currentUser = new User(username, password, new ArrayList<Reservation>(), 0);
                 System.out.println("Login successful! Welcome, " + username);
             } else {
                 System.out.println("Invalid username or password. Please try again");
@@ -66,15 +82,17 @@ public class Client {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
+            // Send sign up info to Server to confirm
             writer.println("signUp");
             writer.println(username);
             writer.println(password);
             writer.flush();
 
+            // Compare Server output
             String result = reader.readLine();
 
             if (result.equals("success")) {
-                currentUser = new User("", "", new ArrayList<Reservation>(), 0);
+                currentUser = new User(username, password, new ArrayList<Reservation>(), 0);
                 System.out.println("Sign up successful!");
             } else {
                 System.out.println("Sign up failed. Username may already exist, password may be less than 8 characters, " +
@@ -85,6 +103,7 @@ public class Client {
         }
     }
 
+    // This menu is always shown when a user is currently logged in
     public static void mainMenu(Socket socket) {
         System.out.println("\n1. Add Reservation");
         System.out.println("2. Remove Reservation");
@@ -122,8 +141,7 @@ public class Client {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
-            System.out.print("Enter customer name: ");
-            String name = scanner.nextLine();
+            // Gathers reservation info to create it in Server
             System.out.print("Enter date (MM/DD/YYYY): ");
             String date = scanner.nextLine();
             System.out.print("Enter time (24-hour format, e.g., 1900): ");
@@ -144,15 +162,22 @@ public class Client {
             }
 
 
-            System.out.print("Enter table number: ");
+            System.out.print("Available Tables: ");
 
             // Get available tables, then display them here
-            writer.println("showTables");
+            writer.println("addReservation");
+
+            // Send reservation info to server to create it
+            // Must be sent now as the Server will cross-check the current reservation info with current reservations
+            // This will allow for a curated display of available tables
+            writer.println(currentUser.getUsername());
             writer.println(date);
-            writer.println(Integer.toString(time));
+            writer.println(time);
+            writer.println(guests);
             writer.flush();
 
             System.out.println(reader.readLine());
+            System.out.print("Please enter the table number requested: ");
 
             int table;
             try {
@@ -161,29 +186,115 @@ public class Client {
                 System.out.println("Invalid table number. Reservation cancelled.");
                 return;
             }
+
+            // Send remaining reservation info
+            writer.println(table);
+            writer.flush();
+
+            // Display Server output on reservation creation
+            System.out.println(reader.readLine());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void removeReservation(Socket socket) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
+            // Repeat of view reservations code
+            writer.println("viewReservations");
+            writer.println(currentUser.getUsername());
+            writer.flush();
+
+            String allReservations = reader.readLine();
+            System.out.println(allReservations);
+
+            if (allReservations.equals("No reservations found")) {
+                return;
+            }
+
+            // Format current reservations so it's just their ID's (so they can be sent back to Server)
+            String[] reservationStrings = allReservations.substring(25).split("\\)");
+            for (int i = 0; i < reservationStrings.length; i++) {
+                reservationStrings[i] = reservationStrings[i].substring(reservationStrings[i].indexOf(" ") + 1,
+                                reservationStrings[i].indexOf(','));
+            }
+
+            System.out.print("Enter the reservation number you would like to remove: ");
+            try {
+                int removedReservationNum = Integer.parseInt(scanner.nextLine());
+
+                //Check if reservationNum is a valid number
+                if (removedReservationNum > 0 && removedReservationNum >= reservationStrings.length)
+                    throw new NumberFormatException();
+
+                // Send reservationID to server to be removed
+                writer.println("removeReservation");
+                writer.println(reservationStrings[removedReservationNum - 1]);
+                writer.flush();
+
+                System.out.println(reader.readLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid reservation number. Reservation removal cancelled.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void viewReservations(Socket socket) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
+            // Send username to Server so it can display appropriate reservations
+            writer.println("viewReservations");
+            writer.println(currentUser.getUsername());
+            writer.flush();
+
+            System.out.println(reader.readLine());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void deleteAccount(Socket socket) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
+            // Confirm w/ user
+            System.out.print("Are you sure?\n[y / n]: ");
+            if (scanner.nextLine().toLowerCase().equals("n")) {
+                return;
+            }
+
+            // Send correct user to be deleted to Server
+            writer.println("deleteAccount");
+            writer.println(currentUser.getUsername());
+            writer.flush();
+
+            currentUser = null;
+
+            System.out.println(reader.readLine());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    // Main method
     public static void main (String[] args) {
         try {
+            // Network setup
             Socket socket = new Socket("localhost", 1234);
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
+            // Starter code to repeat showing a menu based on whether the user is logged in
             System.out.println("Welcome to Reservation Manager!");
             while (running) {
                 if (currentUser == null) {
@@ -198,20 +309,6 @@ public class Client {
             System.out.println("Thank you for using the Reservation Manager!");
             writer.close();
             reader.close();
-
-
-            /*
-            System.out.println("What do you want to send to the server?");
-            String response = scan.nextLine();
-
-            writer.write(response);
-            writer.println();
-            writer.flush();
-            System.out.printf("Sent to server:\n%s\n", response);
-
-            String s1 = reader.readLine();
-            System.out.printf("Recieved from server:\n%s\n", s1);
-            */
         } catch (IOException e) {
             e.printStackTrace();
         }
