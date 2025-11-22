@@ -144,12 +144,19 @@ public class Client {
             // Gathers reservation info to create it in Server
             System.out.print("Enter date (MM/DD/YYYY): ");
             String date = scanner.nextLine();
+            boolean valid = ReservationValidator.validReservation(date);
+            if (!valid) {
+                return;
+            }
             System.out.print("Enter time (24-hour format, e.g., 1900): ");
-            int time;
-            try {
-                time = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid time format. Reservation cancelled.");
+            String time = scanner.nextLine();
+            boolean validTime = ReservationValidator.validTime(time, date);
+            if (!validTime) {
+                return;
+            }
+            int resTime = Integer.parseInt(time);
+            if (resTime < 800 || resTime > 2200) {
+                System.out.println("Please selected a time between 8AM and 10PM");
                 return;
             }
             System.out.print("Enter number of guests: ");
@@ -227,7 +234,7 @@ public class Client {
                 int removedReservationNum = Integer.parseInt(scanner.nextLine());
 
                 //Check if reservationNum is a valid number
-                if (removedReservationNum > 0 && removedReservationNum >= reservationStrings.length)
+                if (removedReservationNum < 0 || removedReservationNum > reservationStrings.length)
                     throw new NumberFormatException();
 
                 // Send reservationID to server to be removed
@@ -310,6 +317,7 @@ public class Client {
             writer.close();
             reader.close();
         } catch (IOException e) {
+            System.out.println("Couldn't connect to server!");
             e.printStackTrace();
         }
     }
