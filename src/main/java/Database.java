@@ -33,7 +33,7 @@ public class Database implements InterfaceDatabase {
     }
 
     // Call before CreateTables()
-    public void createReservations() {
+    public synchronized void createReservations() {
         // Fill reservations array
         try (BufferedReader br = new BufferedReader(new FileReader(reservationsFilename))) {
             // Iterate through reservations.txt for every current reservation
@@ -57,7 +57,7 @@ public class Database implements InterfaceDatabase {
     }
 
     // Make sure the reservation database has been created first
-    public void createTables(ArrayList<Reservation> reservations) {
+    public synchronized void createTables(ArrayList<Reservation> reservations) {
         // Fill tables array
         try (BufferedReader br = new BufferedReader(new FileReader(seatingFilename))) {
             int currentTablesIndex = 0;
@@ -94,12 +94,12 @@ public class Database implements InterfaceDatabase {
         }
     }
 
-    public boolean addReservation(Reservation reservation) {
+    public synchronized boolean addReservation(Reservation reservation) {
         if (this.reservations == null) this.reservations = new ArrayList<>();
 
         //Cross-check other reservations before proceeding
         for (Reservation r : reservations) {
-            if (r.getDay().equals(reservation.getDay()) && Math.abs(r.getTime() - reservation.getTime()) < maxReservationLength) {
+            if (r.getTableNum() == reservation.getTableNum() && r.getDay().equals(reservation.getDay()) && Math.abs(r.getTime() - reservation.getTime()) < maxReservationLength) {
                 return false;
             }
         }
@@ -123,11 +123,11 @@ public class Database implements InterfaceDatabase {
         }
     }
 
-    public ArrayList<Reservation> getReservations() {
+    public synchronized ArrayList<Reservation> getReservations() {
         return reservations;
     }
 
-    public Reservation getReservation(String reservationId) {
+    public synchronized Reservation getReservation(String reservationId) {
         if (reservationId == null || reservations == null) return null;
         for (Reservation r : reservations) {
             if (r != null && reservationId.equals(r.getReservationId())) {
@@ -137,7 +137,7 @@ public class Database implements InterfaceDatabase {
         return null;
     }
 
-    public boolean cancelReservation(Reservation reservation) {
+    public synchronized boolean cancelReservation(Reservation reservation) {
         if (this.reservations != null) {
             reservations.removeIf(r -> r.compareWith(reservation));
         }
@@ -167,7 +167,7 @@ public class Database implements InterfaceDatabase {
 
     // Iterate through tables ArrayList, if it finds a matching id to preexisting table, return it
     // Returns null if unsuccessful
-    public Table getTableByIndex(int tableNum) {
+    public synchronized Table getTableByIndex(int tableNum) {
         for (Table table : tables) {
             if (table.getTableNum() == (tableNum)) {
                 return table;
@@ -178,7 +178,7 @@ public class Database implements InterfaceDatabase {
     }
 
     // Iterate through tables ArrayList, if it finds a table with the corresponding seat amount, add to return list
-    public ArrayList<Table> getTablesBySeats(int seats) {
+    public synchronized ArrayList<Table> getTablesBySeats(int seats) {
         ArrayList<Table> foundTables = new ArrayList<>();
         for (Table table : tables) {
             if (table.getSeats() == seats) {
@@ -189,7 +189,7 @@ public class Database implements InterfaceDatabase {
     }
 
     //Iterate through tables and find whether they have a reservation that conflicts with the current date/time
-    public ArrayList<Table> getUnreservedTables(String day, int time) {
+    public synchronized ArrayList<Table> getUnreservedTables(String day, int time) {
         ArrayList<Table> availableTables = new ArrayList<>();
         for (Table table : tables) {
             if (table.getReservations().isEmpty()) {
