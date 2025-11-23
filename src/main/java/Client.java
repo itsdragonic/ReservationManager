@@ -155,7 +155,7 @@ public class Client {
                 return;
             }
             int resTime = Integer.parseInt(time);
-            if (resTime < 800 || resTime > 2200) {
+            if (resTime < 800 || resTime >= 2200) {
                 System.out.println("Please selected a time between 8AM and 10PM");
                 return;
             }
@@ -163,6 +163,10 @@ public class Client {
             int guests;
             try {
                 guests = Integer.parseInt(scanner.nextLine());
+                if (guests < 1 || guests > 12) {
+                    System.out.println("Invalid guest number. Reservation cancelled.");
+                    return;
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid guest number. Reservation cancelled.");
                 return;
@@ -173,13 +177,12 @@ public class Client {
 
             // Get available tables, then display them here
             writer.println("addReservation");
-
             // Send reservation info to server to create it
             // Must be sent now as the Server will cross-check the current reservation info with current reservations
             // This will allow for a curated display of available tables
             writer.println(currentUser.getUsername());
             writer.println(date);
-            writer.println(time);
+            writer.println(resTime);
             writer.println(guests);
             writer.flush();
 
@@ -234,7 +237,7 @@ public class Client {
                 int removedReservationNum = Integer.parseInt(scanner.nextLine());
 
                 //Check if reservationNum is a valid number
-                if (removedReservationNum < 0 || removedReservationNum > reservationStrings.length)
+                if (removedReservationNum <= 0 || removedReservationNum > reservationStrings.length)
                     throw new NumberFormatException();
 
                 // Send reservationID to server to be removed
