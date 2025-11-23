@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  */
 
-public class Server {
+public class Server implements InterfaceServer, Runnable {
     private static Database db = new Database();
     private static ArrayList<User> users = new ArrayList<>();
     private static boolean running = true;
@@ -90,6 +90,7 @@ public class Server {
                         String date = reader.readLine();
                         int time = Integer.parseInt(reader.readLine());
                         int guests = Integer.parseInt(reader.readLine());
+                        ArrayList<Integer> availableTables = new ArrayList<>();
 
                         // Only return tables that are unreserved AND the same number or greater seats per guest
                         for (Table t : db.getUnreservedTables(date, time)) {
@@ -97,6 +98,7 @@ public class Server {
                                 for (Table t2 : db.getTablesBySeats(s)) {
                                     if (t.getTableNum() == t2.getTableNum()) {
                                         writer.write(String.format("Table: %d (%dS), ", t.getTableNum(), t.getSeats()));
+                                        availableTables.add(t.getTableNum());
                                     }
                                 }
                             }
@@ -106,10 +108,13 @@ public class Server {
                         writer.flush();
 
                         int table = Integer.parseInt(reader.readLine());
+                        //if (!availableTables.contains(table)) {
+                          //  writer.println("whats 9+10");
+                        //}
 
                         // Send back result of adding the reservation to Client
                         Reservation res = new Reservation(name, table, date, time, guests);
-                        if (db.addReservation(res)) {
+                        if (db.addReservation(res) && (availableTables.contains(table))) {
                             writer.println("Reservation added successfully!");
                         } else {
                             writer.println("Failed to add reservation. Please try again");
@@ -206,5 +211,20 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void startServer() {
+
+    }
+
+    @Override
+    public void endServer() {
+
+    }
+
+    @Override
+    public void run() {
+
     }
 }
