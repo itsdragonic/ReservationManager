@@ -1,9 +1,9 @@
 /**
- * Event
+ * Event Interface
  *
  * @author Fredrick Zawislak
  *
- * @version November 18, 2025
+ * @version November 24, 2025
  *
  */
 

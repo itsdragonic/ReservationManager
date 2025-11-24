@@ -1,5 +1,14 @@
 import java.util.ArrayList;
 
+/**
+ * Event.java
+ *
+ * @author Fredrick Zawislak
+ *
+ * @version November 24, 2025
+ *
+ */
+
 public class Event implements InterfaceEvent {
     String name;
     String date;

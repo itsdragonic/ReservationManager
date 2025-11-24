@@ -104,46 +104,49 @@ _(in alphabetical order)_
       Has methods for creating ArrayLists for reservations and tables for use within code
       Any changes made to reservations should be done through ReservationManager.java
 
-3. Management.java
+3. Event.java
 
-4. Reservation.java
+4. Management.java
+
+5. Reservation.java
    1. By Jeremiah Tomasello
    2. This class holds data for individual reservations placed by the user. It holds all the relevent table, date/time, and party size
       information. This class can be attatched to Table objects so their relative information can be gotten through various means,
       though all reservation information can be formatted into a string to be saved to reservations.txt.
 
-5. ReservationManager.java
+6. ReservationManager.java
    1. By Jeremiah Tomasello
    2. This class allows a user to edit data stored in the database. This class allows the user to edit the information in database
       without directly interacting with the class.
 
-6. ReservationValidator.java
+7. ReservationValidator.java
 
-7. Server.java
+8. Server.java
 
-8. Table.java
+9. Table.java
    1. By Jeremiah Tomasello
    2. This class stores information relevent to each table at the restaurant such as the number of seats at the table, and if
       applicable, a Reservation object containing its relevent information. All of this data is used by the Database class to be
       accessed if need be and to be changed accordingly.
 
-9. User.java
-   1. By Maximus Puckett
-   2. This class allows a user to create an account and for their information to be stored. This class lets the user set up their
-      account by making a username and password, vetting them for illegal characters or duplicate accounts already stored. After
-      successfully setting up an account, the account information is then stored in the usernames.txt file to be accessed for later use
-      in either account creation/deletion.
+10. User.java
+    1. By Maximus Puckett
+    2. This class allows a user to create an account and for their information to be stored. This class lets the user set up their
+       account by making a username and password, vetting them for illegal characters or duplicate accounts already stored. After
+       successfully setting up an account, the account information is then stored in the usernames.txt file to be accessed for later use
+       in either account creation/deletion.
 
 ### Interfaces
 | Interface                       | Purpose                                                                 |
 |---------------------------------|-------------------------------------------------------------------------|
-| `InterfaceClient`               |                                                                         |
+| `InterfaceClient`               | Placeholder for client logic                                            |
 | `InterfaceDatabase`             | Declares all database operations and persistence methods.               |
+| `InterfaceEvent`                |                                                                         |
 | `InterfaceManagement`           |                                                                         |
 | `InterfaceReservation`          | Declares getter/setter structure for reservations.                      |
 | `InterfaceReservationManager`   | Declares creation/deletion methods for reservations.                    |
-| `InterfaceReservationValidator` |                                                                         |
-| `InterfaceServer`               |                                                                         |
+| `InterfaceReservationValidator` | Placeholder for validation logic                                        |
+| `InterfaceServer`               | Declares server operations such as start, end, and run                  |
 | `InterfaceTable`                | Declares table operations such as seat management.                      |
 | `InterfaceUser`                 | Declares all getter/setter, creation/deletion, and persistence methods. |
 
