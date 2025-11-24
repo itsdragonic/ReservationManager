@@ -16,7 +16,7 @@ import java.util.Scanner;
  *
  */
 
-public class Client {
+public class Client implements InterfaceClient {
     private static Scanner scanner = new Scanner(System.in);
     private static User currentUser;
     private static boolean running = true;

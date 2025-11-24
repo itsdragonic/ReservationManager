@@ -15,52 +15,74 @@ import java.util.ArrayList;
  */
 
 public class Server implements InterfaceServer, Runnable {
-    private static Database db = new Database();
-    private static ArrayList<User> users = new ArrayList<>();
+    private static Database db = new Database();      // Shared DB (synchronized)
+    private Socket socket;                            // Each thread handles 1 client
     private static boolean running = true;
-    /*
-    Must contain Thread-safe measures
-     */
 
+    // Constructor for each client thread
+    public Server(Socket socket) {
+        this.socket = socket;
+    }
 
     public static void main(String[] args) {
+        new Server(null).startServer();        // Only startServer should handle listening
+    }
+
+    @Override
+    public void startServer() {
+        try (ServerSocket serverSocket = new ServerSocket(1234)) {
+            System.out.println("Server started on port 1234");
+
+            while (running) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected!");
+
+                // Each client in its own thread
+                Thread t = new Thread(new Server(clientSocket));
+                t.start();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void endServer() {
+        running = false;
+    }
+
+    @Override
+    public void run() {
         try {
-            // Server setup
-            ServerSocket serverSocket = new ServerSocket(1234);
-
-            System.out.println("Waiting for the client to connect...");
-            Socket socket = serverSocket.accept();
-            System.out.println("Client connected!");
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream())
+            );
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
-            // Main code
-            // Always checks for commands sent from Client
-            // All commands (beginning & end) are documented w/ print statements
             while (true) {
                 String command = reader.readLine();
+                if (command == null) break;
+
                 System.out.println("Client request: " + command);
 
                 switch (command) {
+
                     case "login": {
                         String username = reader.readLine();
                         String password = reader.readLine();
 
                         // Check whether the inputted user credentials match any existing ones
                         User testUser = new User("", "", new ArrayList<Reservation>(), 0);
-                        boolean ok = testUser.login(username, password);
+                        boolean ok;
 
-                        // Send back result to Client
-                        if (ok) {
-                            writer.write("success");
-                        } else {
-                            writer.write("failure");
+                        synchronized (db) { // now thread-safe
+                            ok = testUser.login(username, password);
                         }
-                        writer.println();
+
+                        writer.println(ok ? "success" : "failure");
                         writer.flush();
 
-                        System.out.println("Finished login");
                         break;
                     }
 
@@ -70,18 +92,14 @@ public class Server implements InterfaceServer, Runnable {
 
                         // Check whether the inputted user credentials match any existing ones
                         User newUser = new User(username, password, new ArrayList<Reservation>(), 0);
-                        boolean success = newUser.createAccount(username, password);
+                        boolean success;
 
-                        // Send back result to Client
-                        if (success) {
-                            writer.write("success");
-                        } else {
-                            writer.write("failure");
+                        synchronized (db) {
+                            success = newUser.createAccount(username, password);
                         }
-                        writer.println();
-                        writer.flush();
 
-                        System.out.println("Finished sign up");
+                        writer.println(success ? "success" : "failure");
+                        writer.flush();
                         break;
                     }
 
@@ -90,15 +108,19 @@ public class Server implements InterfaceServer, Runnable {
                         String date = reader.readLine();
                         int time = Integer.parseInt(reader.readLine());
                         int guests = Integer.parseInt(reader.readLine());
+
                         ArrayList<Integer> availableTables = new ArrayList<>();
 
                         // Only return tables that are unreserved AND the same number or greater seats per guest
-                        for (Table t : db.getUnreservedTables(date, time)) {
-                            for (int s = guests; s <= db.getBiggestSeating(); s++) {
-                                for (Table t2 : db.getTablesBySeats(s)) {
-                                    if (t.getTableNum() == t2.getTableNum()) {
-                                        writer.write(String.format("Table: %d (%dS), ", t.getTableNum(), t.getSeats()));
-                                        availableTables.add(t.getTableNum());
+                        synchronized (db) {
+                            for (Table t : db.getUnreservedTables(date, time)) {
+                                for (int s = guests; s <= db.getBiggestSeating(); s++) {
+                                    for (Table t2 : db.getTablesBySeats(s)) {
+                                        if (t.getTableNum() == t2.getTableNum()) {
+                                            writer.write(String.format("Table: %d (%dS), ",
+                                                    t.getTableNum(), t.getSeats()));
+                                            availableTables.add(t.getTableNum());
+                                        }
                                     }
                                 }
                             }
@@ -108,39 +130,36 @@ public class Server implements InterfaceServer, Runnable {
                         writer.flush();
 
                         int table = Integer.parseInt(reader.readLine());
-                        //if (!availableTables.contains(table)) {
-                          //  writer.println("whats 9+10");
-                        //}
 
                         // Send back result of adding the reservation to Client
                         Reservation res = new Reservation(name, table, date, time, guests);
-                        if (db.addReservation(res) && (availableTables.contains(table))) {
-                            writer.println("Reservation added successfully!");
-                        } else {
-                            writer.println("Failed to add reservation. Please try again");
+
+                        synchronized (db) {
+                            if (db.addReservation(res) && availableTables.contains(table)) {
+                                writer.println("Reservation added successfully!");
+                            } else {
+                                writer.println("Failed to add reservation. Please try again");
+                            }
                         }
 
                         writer.flush();
-
-                        System.out.println("Finished adding reservation");
                         break;
                     }
 
                     case "removeReservation": {
-                        String removedReservation = reader.readLine();
-                        System.out.println(removedReservation);
+                        String resId = reader.readLine();
 
                         // Test to see if you can remove the reservation identified
-                        try {
-                            db.cancelReservation(db.getReservation(removedReservation));
-                            writer.println("Successfully removed reservation");
-                        } catch (Exception e) {
-                            writer.println("Failed to remove reservation. Please try again");
+                        synchronized (db) {
+                            try {
+                                db.cancelReservation(db.getReservation(resId));
+                                writer.println("Successfully removed reservation");
+                            } catch (Exception e) {
+                                writer.println("Failed to remove reservation. Please try again");
+                            }
                         }
 
                         writer.flush();
-
-                        System.out.println("Finished removing reservation");
                         break;
                     }
 
@@ -149,17 +168,19 @@ public class Server implements InterfaceServer, Runnable {
                         String allReservations = "";
 
                         // Iterate through all reservations and format them to be sent back to Client
-                        int reservationCounter = 1;
-                        for (Reservation r : db.getReservations()) {
-                            if (r.getName().equals(username)) {
-                                allReservations += reservationCounter + ".) " + r.getReservationId() + ", ";
-                                reservationCounter++;
+                        synchronized (db) {
+                            int n = 1;
+                            for (Reservation r : db.getReservations()) {
+                                if (r.getName().equals(username)) {
+                                    allReservations += n + ".) " + r.getReservationId() + ", ";
+                                    n++;
+                                }
                             }
                         }
 
                         // Check if there are no reservations
                         if (allReservations.equals("")) {
-                            allReservations += "No reservations found";
+                            allReservations = "No reservations found";
                         } else {
                             allReservations = "Current reservations: " + allReservations;
                         }
@@ -167,64 +188,46 @@ public class Server implements InterfaceServer, Runnable {
                         // Send back resulting reservations (if any)
                         writer.println(allReservations);
                         writer.flush();
-
-                        System.out.println("Finished viewing reservations");
                         break;
                     }
 
                     case "deleteAccount": {
                         String username = reader.readLine();
-                        User tempUser = new User("", "", null, 0);
 
-                        tempUser.deleteAccount(username);
+                        synchronized (db) {
+                            User tempUser = new User("", "", null, 0);
+                            tempUser.deleteAccount(username);
 
-                        // Iterating through the current reservations until all deleted account's reservations are gone
-                        // There must be a for loop broken inside a while loop
-                        // b/c for loop iterates through something that gets potentially edited each cycle changed
-                        boolean foundReservation = true;
-                        while (foundReservation) {
-                            foundReservation = false;
-                            for (Reservation r : db.getReservations()) {
-                                if (r.getName().equals(username)) {
-                                    db.cancelReservation(r);
-                                    foundReservation = true;
-                                    break;
+                            // Iterating through the current reservations until all deleted account's reservations are gone
+                            // There must be a for loop broken inside a while loop
+                            // b/c for loop iterates through something that gets potentially edited each cycle changed
+                            boolean found = true;
+                            while (found) {
+                                found = false;
+                                for (Reservation r : db.getReservations()) {
+                                    if (r.getName().equals(username)) {
+                                        db.cancelReservation(r);
+                                        found = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
 
-                        //Conclude command on Client side
                         writer.println("Successfully deleted account");
                         writer.flush();
-
-                        System.out.println("Finished deleting account");
                         break;
                     }
 
                     // Error code if a command isn't accounted for in the cases above
                     // More a debugging tool than anything else
                     default:
-                        System.out.println("Something went wrong");
-                        System.out.println("Unknown Command: " + command);
+                        System.out.println("Unknown command: " + command);
                 }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void startServer() {
-
-    }
-
-    @Override
-    public void endServer() {
-
-    }
-
-    @Override
-    public void run() {
-
     }
 }

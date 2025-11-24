@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Reservation Manager Project
+ * Reservation Validator
  *
  * Methods to validate the reservation date and time
  * Checks the reservation to see if it is within 7 days and not in the past
@@ -17,13 +17,12 @@ import java.time.format.DateTimeParseException;
  */
 
 
-public class ReservationValidator {
-
+public class ReservationValidator implements InterfaceReservationValidator {
 
     // Checks the formatting of the date and to make sure it's within 7 days
     public static boolean validReservation(String date) {
-        LocalDate localDate = LocalDate.now();
-        LocalDate SevenDays = localDate.plusDays(7);
+        LocalDate today = LocalDate.now();
+        LocalDate sevenDays = today.plusDays(7);
 
         LocalDate reservation;
 
@@ -35,7 +34,12 @@ public class ReservationValidator {
             return false;
         }
 
-        if (reservation.isAfter(SevenDays) || reservation.isBefore(localDate)) {
+        if (reservation.getYear() != today.getYear()) {
+            System.out.println("Please enter a day within the same year.");
+            return false;
+        }
+
+        if (reservation.isAfter(sevenDays) || reservation.isBefore(today)) {
             System.out.println("Please enter a day within 7 days");
             return false;
         } else {
@@ -60,7 +64,7 @@ public class ReservationValidator {
             return false;
         }
         if (reservationDate.equals(localDate) && reservationTime.isBefore(localTime)) {
-            System.out.println("Reservation cant be in the past");
+            System.out.println("Reservation can't be in the past");
             return false;
         } else {
             return true;

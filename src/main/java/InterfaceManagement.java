@@ -1,7 +1,7 @@
 import java.util.List;
 
 /*
- * Server stuff that will be implemented in phase 2
+ * Server stuff that will be implemented in phase 3
  *
  *
  */

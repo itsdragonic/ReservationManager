@@ -5,7 +5,8 @@ import java.io.*;
 /**
  * Main.java
  *
- * Current way for interacting with the database is through the console.
+ * A way for interacting with the database is through the console.
+ * (Now mostly obsolete since client now interacts with console)
  *
  * @author Fredrick Zawislak
  * @version 11/10/2025

@@ -10,9 +10,7 @@
  */
 
 public interface InterfaceServer {
-    public void startServer();
-    public void endServer();
-
-
-
+    void startServer();
+    void endServer();
+    void run();
 }

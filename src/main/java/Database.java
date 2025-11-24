@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Reservation Manager Project
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 public class Database implements InterfaceDatabase {
     private ArrayList<Table> tables;
     private ArrayList<Reservation> reservations;
-    private int biggestSeating = 0;
+    private volatile int biggestSeating = 0;
     private final int maxReservationLength = 2; // Hours
 
     private final String reservationsFilename = "reservations.txt";
@@ -211,7 +212,7 @@ public class Database implements InterfaceDatabase {
         return availableTables;
     }
 
-    public int getBiggestSeating() {
+    public synchronized int getBiggestSeating() {
         return biggestSeating;
     }
 }
