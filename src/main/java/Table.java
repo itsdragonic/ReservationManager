@@ -17,12 +17,14 @@ public class Table implements InterfaceTable {
     private int tableNum;
     private int seats;
     private ArrayList<Reservation> reservations;
+    private int price;
 
     //Unique table
-    public Table(int tableNum, int seats, ArrayList<Reservation> reservations) {
+    public Table(int tableNum, int seats, ArrayList<Reservation> reservations, int price) {
         this.tableNum = tableNum;
         this.seats = seats;
         this.reservations = reservations;
+        this.price = price;
     }
 
     public int getSeats() {
@@ -35,6 +37,10 @@ public class Table implements InterfaceTable {
 
     public ArrayList<Reservation> getReservations() {
         return reservations;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public void addReservation(Reservation reservation) {

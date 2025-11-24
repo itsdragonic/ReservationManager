@@ -1,16 +1,22 @@
 import java.util.List;
 
 /*
- * Server stuff that will be implemented in phase 3
+ * InterfaceManagement.java
+ * 
+ * Admin only access
  *
- *
+ * @author Fredrick Zawislak
+ * @version 11/24/2025
  */
 
 public interface InterfaceManagement {
     void setHours(String openTime, String closeTime);
     void setSeatingArrangement(List<String> seatingLayout);
-    boolean lockSection(String sectionName);
-    boolean unlockSection(String sectionName);
+
+    boolean createEvent(String name);
+    boolean lockSection(List<Integer> list);
+    boolean unlockSection(List<Integer> list);
+    boolean isLocked(int list);
 
     boolean setPrice(String item, double price);
     double getPrice(String item);

@@ -21,16 +21,54 @@ public class Database implements InterfaceDatabase {
     private ArrayList<Reservation> reservations;
     private volatile int biggestSeating = 0;
     private final int maxReservationLength = 2; // Hours
+    private int openTime = 800;
+    private int closeTime = 2200;
 
     private final String reservationsFilename = "reservations.txt";
     private final String seatingFilename = "seating.txt";
+    private final String restaurantFilename = "restaurant.txt";
 
     public Database() {
         this.tables = new ArrayList<>();
         this.reservations = new ArrayList<>();
 
+        createTime();
         createReservations();
         createTables(this.reservations);
+    }
+
+    public int getOpenTime() {
+        return openTime;
+    }
+    public int getCloseTime() {
+        return closeTime;
+    }
+    public void setOpenTime(int time) {
+        openTime = time;
+    }
+    public void setCloseTime(int time) {
+        closeTime = time;
+    }
+
+    public synchronized void createTime() {
+        try (BufferedReader br = new BufferedReader(new FileReader(restaurantFilename))) {
+            String line = br.readLine();
+            int count = 0;
+            while (line != null) {
+                if (count == 0) {
+                    int open = Integer.parseInt(line.split(":")[1]);
+                    int close = Integer.parseInt(line.split(":")[3]);
+
+                    setOpenTime(open);
+                    setCloseTime(close);
+                }
+
+                count++;
+                line = br.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Call before CreateTables()
@@ -68,6 +106,7 @@ public class Database implements InterfaceDatabase {
             while (line != null) {
                 int numTables = Integer.parseInt(line.split(":")[1]);
                 int numSeats = Integer.parseInt(line.split(":")[3]);
+                int numPrice = Integer.parseInt(line.split(":")[5]);
 
                 if (numSeats > biggestSeating)
                     biggestSeating = numSeats;
@@ -82,7 +121,7 @@ public class Database implements InterfaceDatabase {
                         }
                     }
 
-                    tables.add(new Table(currentTablesIndex, numSeats, tableReservations));
+                    tables.add(new Table(currentTablesIndex, numSeats, tableReservations, numPrice));
                     currentTablesIndex++;
                 }
 

@@ -12,6 +12,12 @@ import java.util.ArrayList;
  */
 
 public interface InterfaceDatabase {
+    int getOpenTime();
+    int getCloseTime();
+    void setOpenTime(int time);
+    void setCloseTime(int time);
+    void createTime();
+
     void createReservations();
     void createTables(ArrayList<Reservation> reservations);
 

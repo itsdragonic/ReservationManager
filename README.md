@@ -104,28 +104,30 @@ _(in alphabetical order)_
       Has methods for creating ArrayLists for reservations and tables for use within code
       Any changes made to reservations should be done through ReservationManager.java
 
-3. Reservation.java
+3. Management.java
+
+4. Reservation.java
    1. By Jeremiah Tomasello
    2. This class holds data for individual reservations placed by the user. It holds all the relevent table, date/time, and party size
       information. This class can be attatched to Table objects so their relative information can be gotten through various means,
       though all reservation information can be formatted into a string to be saved to reservations.txt.
 
-4. ReservationManager.java
+5. ReservationManager.java
    1. By Jeremiah Tomasello
    2. This class allows a user to edit data stored in the database. This class allows the user to edit the information in database
       without directly interacting with the class.
 
-5. ReservationValidator.java
+6. ReservationValidator.java
 
-6. Server.java
+7. Server.java
 
-7. Table.java
+8. Table.java
    1. By Jeremiah Tomasello
    2. This class stores information relevent to each table at the restaurant such as the number of seats at the table, and if
       applicable, a Reservation object containing its relevent information. All of this data is used by the Database class to be
       accessed if need be and to be changed accordingly.
 
-8. User.java
+9. User.java
    1. By Maximus Puckett
    2. This class allows a user to create an account and for their information to be stored. This class lets the user set up their
       account by making a username and password, vetting them for illegal characters or duplicate accounts already stored. After
@@ -137,6 +139,7 @@ _(in alphabetical order)_
 |---------------------------------|-------------------------------------------------------------------------|
 | `InterfaceClient`               |                                                                         |
 | `InterfaceDatabase`             | Declares all database operations and persistence methods.               |
+| `InterfaceManagement`           |                                                                         |
 | `InterfaceReservation`          | Declares getter/setter structure for reservations.                      |
 | `InterfaceReservationManager`   | Declares creation/deletion methods for reservations.                    |
 | `InterfaceReservationValidator` |                                                                         |

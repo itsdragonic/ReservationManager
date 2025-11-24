@@ -148,17 +148,26 @@ public class Client implements InterfaceClient {
             if (!valid) {
                 return;
             }
-            System.out.print("Enter time (24-hour format, e.g., 1900): ");
+            System.out.print("Enter time (24-hour format, e.g., 0900, 1900): ");
             String time = scanner.nextLine();
             boolean validTime = ReservationValidator.validTime(time, date);
             if (!validTime) {
                 return;
             }
             int resTime = Integer.parseInt(time);
-            if (resTime < 800 || resTime >= 2200) {
-                System.out.println("Please selected a time between 8AM and 10PM");
+            // Ask server for open/close times
+            writer.println("getTimes");
+            writer.flush();
+
+            String times = reader.readLine();     // Example: "800:2200"
+            int openTime = Integer.parseInt(times.split(":")[0]);
+            int closeTime = Integer.parseInt(times.split(":")[1]);
+
+            if (resTime < openTime || resTime >= closeTime) {
+                System.out.println("Please select a time between " + openTime + " and " + closeTime);
                 return;
             }
+
             System.out.print("Enter number of guests: ");
             int guests;
             try {
@@ -196,6 +205,15 @@ public class Client implements InterfaceClient {
                 System.out.println("Invalid table number. Reservation cancelled.");
                 return;
             }
+
+            // "Credit card payment"
+            System.out.print("Enter credit card number (16 digits): ");
+            String card = scanner.nextLine();
+            if (!card.matches("\\d{16}")) {
+                System.out.println("Invalid credit card. Reservation cancelled.");
+                return;
+            }
+            System.out.println("Payment is being processed...");
 
             // Send remaining reservation info
             writer.println(table);
@@ -321,7 +339,6 @@ public class Client implements InterfaceClient {
             reader.close();
         } catch (IOException e) {
             System.out.println("Couldn't connect to server!");
-            e.printStackTrace();
         }
     }
 }

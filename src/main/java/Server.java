@@ -103,6 +103,18 @@ public class Server implements InterfaceServer, Runnable {
                         break;
                     }
 
+                    case "getTimes": {
+                        int open, close;
+                        synchronized (db) {
+                            open = db.getOpenTime();
+                            close = db.getCloseTime();
+                        }
+
+                        writer.println(open + ":" + close);
+                        writer.flush();
+                        break;
+                    }
+
                     case "addReservation": {
                         String name = reader.readLine();
                         String date = reader.readLine();
