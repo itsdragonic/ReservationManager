@@ -108,6 +108,8 @@ _(in alphabetical order)_
       Any changes made to reservations should be done through ReservationManager.java
 
 3. Event.java
+   1. By Fredrick Zawislak
+   2. This class provides the outline for an event including its name, date, time, and reserved tables
 
 4. Management.java
    1. By Fredrick Zawislak
@@ -153,7 +155,7 @@ _(in alphabetical order)_
 |---------------------------------|-------------------------------------------------------------------------|
 | `InterfaceClient`               | Placeholder for client logic                                            |
 | `InterfaceDatabase`             | Declares all database operations and persistence methods.               |
-| `InterfaceEvent`                |                                                                         |
+| `InterfaceEvent`                | Placeholder for event                                                   |
 | `InterfaceManagement`           | Declares admin operations, such as setting hours, price, and creating events.     |
 | `InterfaceReservation`          | Declares getter/setter structure for reservations.                      |
 | `InterfaceReservationManager`   | Declares creation/deletion methods for reservations.                    |
