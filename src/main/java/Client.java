@@ -106,10 +106,11 @@ public class Client implements InterfaceClient {
     // This menu is always shown when a user is currently logged in
     public static void mainMenu(Socket socket) {
         System.out.println("\n1. Add Reservation");
-        System.out.println("2. Remove Reservation");
-        System.out.println("3. View All Reservations");
-        System.out.println("4. Logout");
-        System.out.println("5. Delete Account");
+        System.out.println("2. Join Event");
+        System.out.println("3. Remove Reservation");
+        System.out.println("4. View All Reservations");
+        System.out.println("5. Logout");
+        System.out.println("6. Delete Account");
         System.out.print("Choose an option: ");
 
         String choice = scanner.nextLine();
@@ -119,20 +120,59 @@ public class Client implements InterfaceClient {
                 addReservation(socket);
                 break;
             case "2":
-                removeReservation(socket);
+                joinEvent(socket);
                 break;
             case "3":
-                viewReservations(socket);
+                removeReservation(socket);
                 break;
             case "4":
+                viewReservations(socket);
+                break;
+            case "5":
                 currentUser = null;
                 System.out.println("Logged out successfully.");
                 break;
-            case "5":
+            case "6":
                 deleteAccount(socket);
                 break;
             default:
                 System.out.println("Error! Please enter a valid option.");
+        }
+    }
+
+    public static void joinEvent(Socket socket) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+
+            System.out.print("Enter event name: ");
+            String eventName = scanner.nextLine();
+
+            writer.println("joinEvent");
+            writer.println(currentUser.getUsername());
+            writer.println(eventName);
+            writer.flush();
+
+            String line = reader.readLine();
+
+            if (line.startsWith("Sorry") || line.equals("Event not found.")) {
+                System.out.println(line);
+                return;
+            }
+
+            // Print available tables
+            System.out.println(line);
+
+            System.out.print("Enter table number: ");
+            int table = Integer.parseInt(scanner.nextLine());
+
+            writer.println(table);
+            writer.flush();
+
+            System.out.println(reader.readLine());
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

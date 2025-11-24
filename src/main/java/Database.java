@@ -19,6 +19,7 @@ import java.util.List;
 public class Database implements InterfaceDatabase {
     private ArrayList<Table> tables;
     private ArrayList<Reservation> reservations;
+    private ArrayList<Event> events = new ArrayList<>();
     private volatile int biggestSeating = 0;
     private final int maxReservationLength = 2; // Hours
     private int openTime = 800;
@@ -37,16 +38,16 @@ public class Database implements InterfaceDatabase {
         createTables(this.reservations);
     }
 
-    public int getOpenTime() {
+    public synchronized int getOpenTime() {
         return openTime;
     }
-    public int getCloseTime() {
+    public synchronized int getCloseTime() {
         return closeTime;
     }
-    public void setOpenTime(int time) {
+    public synchronized void setOpenTime(int time) {
         openTime = time;
     }
-    public void setCloseTime(int time) {
+    public synchronized void setCloseTime(int time) {
         closeTime = time;
     }
 
@@ -67,7 +68,23 @@ public class Database implements InterfaceDatabase {
                     setOpenTime(open);
                     setCloseTime(close);
                 } else {
-                    String event = line.split(":")[1];
+                    // Format: event:name:MM/DD/YYYY:HHMM:table#:table#...
+                    String[] parts = line.split(":");
+
+                    if (parts[0].equals("event")) {
+                        String eventName = parts[1];
+                        String date = parts[2];
+                        int time = Integer.parseInt(parts[3]);
+
+                        ArrayList<Integer> tbls = new ArrayList<>();
+
+                        // Tables start at index 4
+                        for (int i = 4; i < parts.length; i++) {
+                            tbls.add(Integer.parseInt(parts[i]));
+                        }
+
+                        events.add(new Event(eventName, date, time, tbls));
+                    }
                 }
 
                 count++;
@@ -172,7 +189,8 @@ public class Database implements InterfaceDatabase {
                 }
             }
 
-            bw.write(reservation.getReservationId() + "\n");
+            bw.newLine();
+            bw.write(reservation.getReservationId());
             return true;
         } catch (IOException e) {
             e.printStackTrace(); // Could be replaced with some kind of "adding reservation error"
@@ -270,5 +288,23 @@ public class Database implements InterfaceDatabase {
 
     public synchronized int getBiggestSeating() {
         return biggestSeating;
+    }
+
+    public synchronized ArrayList<Event> getEvents() {
+        return events;
+    }
+}
+
+class Event {
+    String name;
+    String date;
+    int time;
+    ArrayList<Integer> tables;
+
+    Event(String name, String date, int time, ArrayList<Integer> tables) {
+        this.name = name;
+        this.date = date;
+        this.time = time;
+        this.tables = tables;
     }
 }

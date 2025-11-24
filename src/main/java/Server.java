@@ -231,6 +231,78 @@ public class Server implements InterfaceServer, Runnable {
                         break;
                     }
 
+                    case "joinEvent": {
+                        String username = reader.readLine();
+                        String eventName = reader.readLine();
+
+                        Event target = null;
+
+                        synchronized (db) {
+                            for (Event e : db.getEvents()) {
+                                if (e.name.equals(eventName)) {
+                                    target = e;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (target == null) {
+                            writer.println("Event not found.");
+                            writer.flush();
+                            break;
+                        }
+
+                        // Find which of this event’s tables are available
+                        ArrayList<Integer> available = new ArrayList<>();
+
+                        synchronized (db) {
+                            for (Integer tableNum : target.tables) {
+                                Table t = db.getTableByIndex(tableNum);
+                                boolean ok = true;
+                                for (Reservation r : t.getReservations()) {
+                                    if (r.getDay().equals(target.date)
+                                            && Math.abs(r.getTime() - target.time) < 2) {
+                                        ok = false;
+                                        break;
+                                    }
+                                }
+                                if (ok) available.add(tableNum);
+                            }
+                        }
+
+                        if (available.isEmpty()) {
+                            writer.println("Sorry, all tables are reserved!");
+                            writer.flush();
+                            break;
+                        }
+
+                        // Send available tables back
+                        writer.print("Available tables: ");
+                        for (int t : available) writer.print(t + " ");
+                        writer.println();
+                        writer.flush();
+
+                        int chosen = Integer.parseInt(reader.readLine());
+                        if (!available.contains(chosen)) {
+                            writer.println("Invalid table selection.");
+                            writer.flush();
+                            break;
+                        }
+
+                        // Add reservation
+                        Reservation newRes = new Reservation(username, chosen,
+                                target.date, target.time, 1);
+
+                        synchronized (db) {
+                            boolean success = db.addReservation(newRes);
+                            writer.println(success ? "Joined event!" :
+                                    "Failed to join event.");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
                     // Error code if a command isn't accounted for in the cases above
                     // More a debugging tool than anything else
                     default:

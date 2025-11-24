@@ -22,10 +22,13 @@ public interface InterfaceDatabase {
     void createTables(ArrayList<Reservation> reservations);
 
     boolean addReservation(Reservation reservation);
+    ArrayList<Reservation> getReservations();
     Reservation getReservation(String reservationId);
     boolean cancelReservation(Reservation reservation);
 
     Table getTableByIndex(int tableNum);
     ArrayList<Table> getTablesBySeats(int seats);
     ArrayList<Table> getUnreservedTables(String day, int time);
+    int getBiggestSeating();
+    ArrayList<Event> getEvents();
 }
