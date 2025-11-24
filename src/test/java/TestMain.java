@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * TestMain.java
  *
  * Tests for Main using real Main.main() with simulated input.
+ * (Note: mostly obsolete now due to client I/O)
  *
  * Notes:
  * - Main uses several private static fields (db, scanner, users, currentUser, running).

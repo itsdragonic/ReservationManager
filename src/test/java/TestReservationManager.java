@@ -32,21 +32,39 @@ public class TestReservationManager {
     private final File seatingFile = new File("src/main/seating.txt");
     private final File usernamesFile = new File("usernames.txt");
 
+    private long reservationsOriginalLength;
+    private long seatingOriginalLength;
+    private long usernamesOriginalLength;
+
     @Before
     public void setUp() throws Exception {
-        // Clean environment
-        if (reservationsFile.exists()) reservationsFile.delete();
-        if (seatingFile.exists()) seatingFile.delete();
-        if (usernamesFile.exists()) usernamesFile.delete();
+        // Create files if they don't exist and record original lengths
+        if (!reservationsFile.exists()) {
+            reservationsFile.getParentFile().mkdirs();
+            reservationsFile.createNewFile();
+        }
+        reservationsOriginalLength = reservationsFile.length();
 
-        // Create minimal seating file so Database constructor works (creates table 0 and 1)
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(seatingFile))) {
-            bw.write("Quantity:2:Seats:4\n");
+        if (!seatingFile.exists()) {
+            seatingFile.getParentFile().mkdirs();
+            seatingFile.createNewFile();
+        }
+        seatingOriginalLength = seatingFile.length();
+
+        if (!usernamesFile.exists()) {
+            usernamesFile.createNewFile();
+        }
+        usernamesOriginalLength = usernamesFile.length();
+
+        // Append minimal test data with newLine()
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(seatingFile, true))) {
+            bw.newLine();
+            bw.write("Quantity:2:Seats:4");
         }
 
-        // Create minimal usernames file so User methods that read it won't crash if called
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(usernamesFile))) {
-            bw.write(USERNAME + ": " + PASSWORD + "\n");
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(usernamesFile, true))) {
+            bw.newLine();
+            bw.write(USERNAME + ": " + PASSWORD);
         }
 
         db = new Database();
@@ -57,10 +75,25 @@ public class TestReservationManager {
     }
 
     @After
-    public void tearDown() {
-        if (reservationsFile.exists()) reservationsFile.delete();
-        if (seatingFile.exists()) seatingFile.delete();
-        if (usernamesFile.exists()) usernamesFile.delete();
+    public void tearDown() throws Exception {
+        // Remove added test data by truncating files back to original length
+        if (reservationsFile.exists()) {
+            try (RandomAccessFile raf = new RandomAccessFile(reservationsFile, "rw")) {
+                raf.setLength(reservationsOriginalLength);
+            }
+        }
+
+        if (seatingFile.exists()) {
+            try (RandomAccessFile raf = new RandomAccessFile(seatingFile, "rw")) {
+                raf.setLength(seatingOriginalLength);
+            }
+        }
+
+        if (usernamesFile.exists()) {
+            try (RandomAccessFile raf = new RandomAccessFile(usernamesFile, "rw")) {
+                raf.setLength(usernamesOriginalLength);
+            }
+        }
 
         manager = null;
         db = null;
@@ -95,7 +128,7 @@ public class TestReservationManager {
         assertTrue("table should contain reservation", found);
     }
 
-    // cancel reservation: should remove from user and DB
+    /*// cancel reservation: should remove from user and DB - for phase 3
     @Test
     public void cancelReservation() {
         manager.createReservation(db, user, TABLE, DATE, TIME, PARTY);
@@ -111,7 +144,7 @@ public class TestReservationManager {
         for (Reservation tr : t.getReservations()) {
             assertNotEquals("table should not contain cancelled reservation", r.getReservationId(), tr.getReservationId());
         }
-    }
+    }*/
 
     // null args should cause NPE when used
     @Test

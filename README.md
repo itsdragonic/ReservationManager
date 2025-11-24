@@ -177,11 +177,12 @@ You can also go through and run the test cases inside the test folder.
    their account.
    1. Adding a reservation prompts the user to enter in the specific information about when and how many guests to reserve a table for,
       of which the reservation is then saved to a database.
-   2. Removing a reservation prompts to enter the reservation (ID) they would like to cancel, and if successful, will remove the
+   2. You can join an event if you know the name of it. You can then select a table if there is one available.
+   3. Removing a reservation prompts to enter the reservation (ID) they would like to cancel, and if successful, will remove the
       reservation from the database.
-   3. Viewing all reservations lets the user view all current reservations currently stored in the database.
-   4. If the user logs out, they are brought back to the first step.
-   5. Deleting an account confirms with the user their intentions, and if so, deletes the user along with their reservations from the
+   4. Viewing all reservations lets the user view all current reservations currently stored in the database.
+   5. If the user logs out, they are brought back to the first step.
+   6. Deleting an account confirms with the user their intentions, and if so, deletes the user along with their reservations from the
       database
 
 ### Test Cases
@@ -197,3 +198,5 @@ For test cases, we have test files for each of the (current 6) classes. For our 
 ### Extra Notes
 - Our code should be thread safe in its current form.
 - The current GUI via console is subject to change.
+- Main.java is mostly obsolete now due to the client I/O
+- The only event is TestEvent right now
