@@ -186,7 +186,7 @@ You can also go through and run the test cases inside the test folder.
       database
 
 ### Test Cases
-For test cases, we have test files for each of the (current 6) classes. For our test cases, we sampled creating an editing a Database class. Firstly, we tested whether Table objects could be created with the specifications of there being two tables with four seats each. Then, to create a reservation, we created a test case for an example user with test values for their reservation to be created successfully. Additionally, we did tests on whether (after the reservation had been created) we could access and cancel a reservation. Finally, we also have test cases in the event that a reservation or any of its components can handle null or unexpected input values. This is just one example of the many test cases we have for each of the methods.
+For test cases, we have test files for each of the (current 10) classes. For our test cases, we sampled creating an editing a Database class. Firstly, we tested whether Table objects could be created with the specifications of there being two tables with four seats each. Then, to create a reservation, we created a test case for an example user with test values for their reservation to be created successfully. Additionally, we did tests on whether (after the reservation had been created) we could access and cancel a reservation. Finally, we also have test cases in the event that a reservation or any of its components can handle null or unexpected input values. This is just one example of the many test cases we have for each of the methods. Each varies depending on what is necessary to test.
 
 ### Submission Details
 | Deliverable          | Submitted By                                   |
