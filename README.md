@@ -3,8 +3,8 @@ Team members: Maximus Puckett, Jeremiah Tomasello, Fredrick Zawislak
 
 | Team Member       | Role                                         | Contributions                                                                  |
 |-------------------|----------------------------------------------|--------------------------------------------------------------------------------|
-| Jeremiah Tomasello    | Project lead, Develop methods for application | Implemented `Database`,`Reservation`,`ReservationManager`, and `Table` classes. Helped with README |
-| Maximus Puckett   | Develop methods for user                     | Implemented `User` class                                                       |
+| Jeremiah Tomasello    | Project lead, Develop methods for application | Implemented `Server`, `Client`, `Database`,`Reservation`,`ReservationManager`, and `Table` classes. Helped with README |
+| Maximus Puckett   | Develop methods for user                     | Implemented `User` and `ReservationValidator` clases. Helped with README                                                      |
 | Fredrick Zawislak | Interface designer, Test cases               | Implemented test cases, created the interfaces, and wrote README               |
 
 ## Description
