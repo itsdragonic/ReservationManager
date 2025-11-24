@@ -129,8 +129,8 @@ public class Server implements InterfaceServer, Runnable {
                                 for (int s = guests; s <= db.getBiggestSeating(); s++) {
                                     for (Table t2 : db.getTablesBySeats(s)) {
                                         if (t.getTableNum() == t2.getTableNum()) {
-                                            writer.write(String.format("Table: %d (%dS), ",
-                                                    t.getTableNum(), t.getSeats()));
+                                            writer.write(String.format("Table: %d (%d seats, $%d), ",
+                                                    t.getTableNum(), t.getSeats(), t.getPrice()));
                                             availableTables.add(t.getTableNum());
                                         }
                                     }

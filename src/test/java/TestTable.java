@@ -22,7 +22,7 @@ public class TestTable {
     @Before
     public void setUp() {
         list = new ArrayList<>();
-        table = new Table(5, 4, list); // tableNum = 5, seats = 4
+        table = new Table(5, 4, list, 25); // tableNum = 5, seats = 4
         r1 = new Reservation("Alice", 5, "11/10/2025", 1900, 2);
         r2 = new Reservation("Bob", 5, "11/11/2025", 2000, 3);
     }

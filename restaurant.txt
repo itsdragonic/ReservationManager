@@ -1,1 +1,4 @@
 OpenTime:800:CloseTime:2000
+
+// Events
+event:JohnBirthday:60:61

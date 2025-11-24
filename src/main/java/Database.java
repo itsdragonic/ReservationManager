@@ -55,12 +55,19 @@ public class Database implements InterfaceDatabase {
             String line = br.readLine();
             int count = 0;
             while (line != null) {
+                if (line.trim().isEmpty() || !line.contains(":")) {
+                    line = br.readLine();
+                    continue;
+                }
+
                 if (count == 0) {
                     int open = Integer.parseInt(line.split(":")[1]);
                     int close = Integer.parseInt(line.split(":")[3]);
 
                     setOpenTime(open);
                     setCloseTime(close);
+                } else {
+                    String event = line.split(":")[1];
                 }
 
                 count++;
@@ -78,6 +85,11 @@ public class Database implements InterfaceDatabase {
             // Iterate through reservations.txt for every current reservation
             String line = br.readLine();
             while (line != null) {
+                if (line.trim().isEmpty() || !line.contains(":")) {
+                    line = br.readLine();
+                    continue;
+                }
+
                 String user = line.split(":")[0];
                 int tableNum = Integer.parseInt(line.split(":")[1]);
                 String day = line.split(":")[2];
@@ -104,6 +116,11 @@ public class Database implements InterfaceDatabase {
             // Iterate through seating.txt to get seating arrangement
             String line = br.readLine();
             while (line != null) {
+                if (line.trim().isEmpty() || !line.contains(":")) {
+                    line = br.readLine();
+                    continue;
+                }
+
                 int numTables = Integer.parseInt(line.split(":")[1]);
                 int numSeats = Integer.parseInt(line.split(":")[3]);
                 int numPrice = Integer.parseInt(line.split(":")[5]);
