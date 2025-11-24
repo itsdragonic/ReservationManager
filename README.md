@@ -3,8 +3,8 @@ Team members: Maximus Puckett, Jeremiah Tomasello, Fredrick Zawislak
 
 | Team Member       | Role                                         | Contributions                                                                  |
 |-------------------|----------------------------------------------|--------------------------------------------------------------------------------|
-| Jeremiah Tomasello    | Project lead, Develop methods for application | Implemented `Database`,`Reservation`,`ReservationManager`, and `Table` classes. Helped with README |
-| Maximus Puckett   | Develop methods for user                     | Implemented `User` class                                                       |
+| Jeremiah Tomasello    | Project lead, Develop methods for application | Implemented `Server`, `Client`, `Database`,`Reservation`,`ReservationManager`, and `Table` classes. Helped with README |
+| Maximus Puckett   | Develop methods for user                     | Implemented `User` and `ReservationValidator` clases. Helped with README                                                      |
 | Fredrick Zawislak | Interface designer, Test cases               | Implemented test cases, created the interfaces, and wrote README               |
 
 ## Description
@@ -96,6 +96,10 @@ For test cases, we have test files for each of the (current 6) classes. For our 
 ### Classes
 _(in alphabetical order)_
 1. Client.java
+   1. By Jeremiah Tomasello
+   2. This class is the client side interface that the user interacts with to login or create their account where they can view, add, or
+      remove their reservations.
+      
 
 2. Database.java
    1. By Jeremiah Tomasello
@@ -118,8 +122,14 @@ _(in alphabetical order)_
       without directly interacting with the class.
 
 6. ReservationValidator.java
+   1. By Maximus Puckett
+   2. This class validates the reservation date and time by comparing user input to the current local time and checking if it's
+      within the allotted time period.
 
 7. Server.java
+   1. By Jeremiah Tomasello
+   2. This class implements the server side and waits for a connection on port 1234 and handles each client in its own thread.
+      The server processes user commands, such as logging in, adding or removing reservations, etc in a thread-safe way
 
 8. Table.java
    1. By Jeremiah Tomasello
@@ -137,13 +147,13 @@ _(in alphabetical order)_
 ### Interfaces
 | Interface                       | Purpose                                                                 |
 |---------------------------------|-------------------------------------------------------------------------|
-| `InterfaceClient`               |                                                                         |
+| `InterfaceClient`               | Placeholder for client logic                                            |
 | `InterfaceDatabase`             | Declares all database operations and persistence methods.               |
 | `InterfaceManagement`           |                                                                         |
 | `InterfaceReservation`          | Declares getter/setter structure for reservations.                      |
 | `InterfaceReservationManager`   | Declares creation/deletion methods for reservations.                    |
-| `InterfaceReservationValidator` |                                                                         |
-| `InterfaceServer`               |                                                                         |
+| `InterfaceReservationValidator` | Placeholder for validation logic                                        |
+| `InterfaceServer`               | Declares server operations such as start, end, and run                  |
 | `InterfaceTable`                | Declares table operations such as seat management.                      |
 | `InterfaceUser`                 | Declares all getter/setter, creation/deletion, and persistence methods. |
 
