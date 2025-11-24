@@ -35,8 +35,8 @@ _(in alphabetical order)_
 
 4. Table.java
    1. By Jeremiah Tomasello
-   2. This class stores information relevent to each table at the restaurant such as the number of seats at the table, and if
-      applicable, a Reservation object containing its relevent information. All of this data is used by the Database class to be
+   2. This class stores information relevant to each table at the restaurant such as the number of seats at the table, and if
+      applicable, a Reservation object containing its relevant information. All of this data is used by the Database class to be
       accessed if need be and to be changed accordingly.
 
 5. User.java
@@ -104,45 +104,44 @@ _(in alphabetical order)_
       Has methods for creating ArrayLists for reservations and tables for use within code
       Any changes made to reservations should be done through ReservationManager.java
 
-3. Management.java
+3. Event.java
 
-4. Reservation.java
+4. Management.java
+
+5. Reservation.java
    1. By Jeremiah Tomasello
    2. This class holds data for individual reservations placed by the user. It holds all the relevent table, date/time, and party size
       information. This class can be attatched to Table objects so their relative information can be gotten through various means,
       though all reservation information can be formatted into a string to be saved to reservations.txt.
 
-5. ReservationManager.java
+6. ReservationManager.java
    1. By Jeremiah Tomasello
    2. This class allows a user to edit data stored in the database. This class allows the user to edit the information in database
       without directly interacting with the class.
 
-6. ReservationValidator.java
+7. ReservationValidator.java
 
-7. Server.java
+8. Server.java
 
-8. Table.java
+9. Table.java
    1. By Jeremiah Tomasello
    2. This class stores information relevent to each table at the restaurant such as the number of seats at the table, and if
       applicable, a Reservation object containing its relevent information. All of this data is used by the Database class to be
       accessed if need be and to be changed accordingly.
 
-9. User.java
-   1. By Maximus Puckett
-   2. This class allows a user to create an account and for their information to be stored. This class lets the user set up their
-      account by making a username and password, vetting them for illegal characters or duplicate accounts already stored. After
-      successfully setting up an account, the account information is then stored in the usernames.txt file to be accessed for later use
-      in either account creation/deletion.
+10. User.java
+    1. By Maximus Puckett
+    2. This class allows a user to create an account and for their information to be stored. This class lets the user set up their
+       account by making a username and password, vetting them for illegal characters or duplicate accounts already stored. After
+       successfully setting up an account, the account information is then stored in the usernames.txt file to be accessed for later use
+       in either account creation/deletion.
 
 ### Interfaces
 | Interface                       | Purpose                                                                 |
 |---------------------------------|-------------------------------------------------------------------------|
-| `InterfaceClient`               |                                                                         |
 | `InterfaceDatabase`             | Declares all database operations and persistence methods.               |
-| `InterfaceManagement`           |                                                                         |
 | `InterfaceReservation`          | Declares getter/setter structure for reservations.                      |
 | `InterfaceReservationManager`   | Declares creation/deletion methods for reservations.                    |
-| `InterfaceReservationValidator` |                                                                         |
 | `InterfaceServer`               |                                                                         |
 | `InterfaceTable`                | Declares table operations such as seat management.                      |
 | `InterfaceUser`                 | Declares all getter/setter, creation/deletion, and persistence methods. |
@@ -160,11 +159,12 @@ You can also go through and run the test cases inside the test folder.
    their account.
    1. Adding a reservation prompts the user to enter in the specific information about when and how many guests to reserve a table for,
       of which the reservation is then saved to a database.
-   2. Removing a reservation prompts to enter the reservation (ID) they would like to cancel, and if successful, will remove the
+   2. Joining an event will require the user to know the event name to join, they can pick an available table if there is one. The ID tells the date and time.
+   3. Removing a reservation prompts to enter the reservation (ID) they would like to cancel, and if successful, will remove the
       reservation from the database.
-   3. Viewing all reservations lets the user view all current reservations currently stored in the database.
-   4. If the user logs out, they are brought back to the first step.
-   5. Deleting an account confirms with the user their intentions, and if so, deletes the user along with their reservations from the
+   4. Viewing all reservations lets the user view all current reservations currently stored in the database.
+   5. If the user logs out, they are brought back to the first step.
+   6. Deleting an account confirms with the user their intentions, and if so, deletes the user along with their reservations from the
       database
 
 ### Test Cases
@@ -180,3 +180,4 @@ For test cases, we have test files for each of the (current 6) classes. For our 
 ### Extra Notes
 - Our code should be thread safe in its current form.
 - The current GUI via console is subject to change.
+- `JohnBirthday` is currently the only event going on.

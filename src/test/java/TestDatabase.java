@@ -3,6 +3,7 @@ import org.junit.Before;
 import org.junit.After;
 import static org.junit.Assert.*;
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * TestDatabase.java
@@ -95,5 +96,48 @@ public class TestDatabase {
         } catch (NullPointerException e) {
             assertTrue("Caught expected NullPointerException for non-existent cancel", true);
         }
+    }
+
+    @Test
+    public void testGetTablesBySeats() {
+        ArrayList<Table> fourSeatTables = db.getTablesBySeats(4);
+        assertEquals("There should be 25 four-seat tables", 25, fourSeatTables.size());
+    }
+
+    @Test
+    public void testEventParsingIgnoresInvalidLines() throws Exception {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("restaurant.txt"))) {
+            bw.write("open:800:close:2200\n");
+            bw.write("INVALID LINE WITHOUT COLONS\n");
+            bw.write("event:TestEvent:03/15/2025:1400:2\n");
+        }
+
+        db = new Database();
+        assertEquals("Only valid event lines should be parsed", 1, db.getEvents().size());
+    }
+
+    @Test
+    public void testSettersForOpenCloseTimes() {
+        db.setOpenTime(900);
+        db.setCloseTime(2100);
+
+        assertEquals(900, db.getOpenTime());
+        assertEquals(2100, db.getCloseTime());
+    }
+
+    @Test
+    public void testGetBiggestSeating() {
+        assertEquals("Biggest seating should be 12 based on seating.txt", 12, db.getBiggestSeating());
+    }
+
+    @Test
+    public void testCancelReservation_NoSuchReservation() {
+        Reservation fake = new Reservation("Ghost", 10, "01/01/2026", 1200, 5);
+
+        // Should not crash
+        boolean result = db.cancelReservation(fake);
+
+        // Should safely return true because file rewrites successfully
+        assertTrue("Canceling a non-existent reservation should not throw errors", result);
     }
 }

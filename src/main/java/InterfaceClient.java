@@ -1,7 +1,7 @@
 /**
  * Reservation Client
  *
- * @author Jeremiah Tomasello
+ * @author Fredrick Zawislak
  *
  * @version November 18, 2025
  *
