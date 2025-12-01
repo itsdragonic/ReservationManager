@@ -1,7 +1,13 @@
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
+import javax.swing.*;
+import javax.swing.JFrame;
 
 /**
  * Reservation Manager Project
@@ -20,67 +26,103 @@ public class Client implements InterfaceClient {
     private static Scanner scanner = new Scanner(System.in);
     private static User currentUser;
     private static boolean running = true;
+    public static BufferedReader reader;
+    public static PrintWriter writer;
+    public static boolean loggedIn = false;
+
+
 
     // This menu is what is always first shown
     public static void signedOutMenu(Socket socket) {
-        System.out.println("\n1. Login");
-        System.out.println("2. Sign Up");
-        System.out.println("3. Exit");
-        System.out.print("Choose an option: ");
+        JFrame frame1 = new JFrame("Signed Out");
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand().equals("Login")) {
+                    login(socket);
+                    if (loggedIn) {
+                        frame1.dispose();
+                        mainMenu(socket);
+                    }
+                } else if (e.getActionCommand().equals("Sign Up")) {
+                    signUp(socket);
+                    if (loggedIn) {
+                        frame1.dispose();
+                        mainMenu(socket);
+                    }
+                } else if (e.getActionCommand().equals("Exit")) {
+                    running = false;
+                    frame1.dispose();
+                }
+            }
+        };
 
-        String choice = scanner.nextLine();
+        frame1.setSize(1280, 720);
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame1.setResizable(true);
 
-        if (choice.equals("1")) {
-            login(socket);
-        } else if (choice.equals("2")) {
-            signUp(socket);
-        } else if (choice.equals("3")) {
-            running = false;
-        } else {
-            System.out.println("Error! Please enter a valid option.");
+        JButton loginButton = new JButton("Login");
+        loginButton.setActionCommand("Login");
+        loginButton.addActionListener(actionListener);
+
+        JButton signUpButton = new JButton("Sign Up");
+        signUpButton.setActionCommand("Sign Up");
+        signUpButton.addActionListener(actionListener);
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.setActionCommand("Exit");
+        exitButton.addActionListener(actionListener);
+
+        loginButton.setPreferredSize(new Dimension(200, 100));
+        signUpButton.setPreferredSize(new Dimension(200, 100));
+        exitButton.setPreferredSize(new Dimension(200, 100));
+        panel.add(loginButton);
+        panel.add(signUpButton);
+        panel.add(exitButton);
+
+        frame1.add(panel);
+        frame1.setVisible(true);
+
+
         }
-    }
+
 
     public static void login(Socket socket) {
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
+        String username = JOptionPane.showInputDialog(null, "Enter your Username");
+        String password = JOptionPane.showInputDialog(null, "Enter your Password");
+
+        // Send login info to Server to confirm
+
 
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
-
-            // Send login info to Server to confirm
+            // Compare server output
             writer.println("login");
             writer.println(username);
             writer.println(password);
             writer.flush();
 
-            // Compare server output
             String result = reader.readLine();
 
             if (result.equals("success")) {
                 currentUser = new User(username, password, new ArrayList<Reservation>(), 0);
-                System.out.println("Login successful! Welcome, " + username);
+                JOptionPane.showMessageDialog(null, "Login Successful, welcome " + username + "!");
+                loggedIn = true;
             } else {
-                System.out.println("Invalid username or password. Please try again");
+                JOptionPane.showMessageDialog(null, "Invalid username or password. Please try again.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Unexcepted network fail. Please try again.");
         }
     }
 
     public static void signUp(Socket socket) {
-        System.out.print("Enter new username: ");
-        String username = scanner.nextLine();
-
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
+        String username = JOptionPane.showInputDialog(null, "Enter New Username");
+        String password = JOptionPane.showInputDialog(null, "Enter Password");
 
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            //reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            //writer = new PrintWriter(socket.getOutputStream());
 
             // Send sign up info to Server to confirm
             writer.println("signUp");
@@ -93,60 +135,96 @@ public class Client implements InterfaceClient {
 
             if (result.equals("success")) {
                 currentUser = new User(username, password, new ArrayList<Reservation>(), 0);
-                System.out.println("Sign up successful!");
+                JOptionPane.showMessageDialog(null, "Sign Up Successful, welcome " + username + "!");
+                loggedIn = true;
             } else {
-                System.out.println("Sign up failed. Username may already exist, password may be less than 8 characters, " +
-                        "or input is invalid.");
+                JOptionPane.showMessageDialog(null, "Invalid username or password. Please try again.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Unexcepted network fail. Please try again.");
         }
     }
 
     // This menu is always shown when a user is currently logged in
     public static void mainMenu(Socket socket) {
-        System.out.println("\n1. Add Reservation");
-        System.out.println("2. Join Event");
-        System.out.println("3. Remove Reservation");
-        System.out.println("4. View All Reservations");
-        System.out.println("5. Logout");
-        System.out.println("6. Delete Account");
-        System.out.print("Choose an option: ");
+        JFrame frame = new JFrame("Main Menu");
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand().equals("Add Reservation")) {
+                    addReservation(socket);
+                } else if (e.getActionCommand().equals("Join Event")) {
+                    joinEvent(socket);
+                } else if (e.getActionCommand().equals("Remove Reservation")) {
+                    removeReservation(socket);
+                }
+                // doesn't do anything currently, I think we should combine with remove to make a reservation manager instead
+                else if (e.getActionCommand().equals("View All Reservations")) {
+                    viewReservations(socket);
+                } else if (e.getActionCommand().equals("Logout")) {
+                    currentUser = null;
+                    signedOutMenu(socket);
+                    loggedIn = false;
+                    frame.dispose();
+                } else if (e.getActionCommand().equals("Delete Account")) {
+                    deleteAccount(socket);
+                    if (!loggedIn) {
+                        frame.dispose();
+                        signedOutMenu(socket);
+                        currentUser = null;
+                    }
+                }
 
-        String choice = scanner.nextLine();
+            }
+        };
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(1280, 720);
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        frame.setResizable(true);
 
-        switch (choice) {
-            case "1":
-                addReservation(socket);
-                break;
-            case "2":
-                joinEvent(socket);
-                break;
-            case "3":
-                removeReservation(socket);
-                break;
-            case "4":
-                viewReservations(socket);
-                break;
-            case "5":
-                currentUser = null;
-                System.out.println("Logged out successfully.");
-                break;
-            case "6":
-                deleteAccount(socket);
-                break;
-            default:
-                System.out.println("Error! Please enter a valid option.");
-        }
+        JButton addReservationButton = new JButton("Add Reservation");
+        addReservationButton.setActionCommand("Add Reservation");
+        addReservationButton.addActionListener(actionListener);
+
+        JButton joinEventButton = new JButton("Join Event");
+        joinEventButton.setActionCommand("Join Event");
+        joinEventButton.addActionListener(actionListener);
+
+        JButton removeReservationButton = new JButton("Remove Reservation");
+        removeReservationButton.setActionCommand("Remove Reservation");
+        removeReservationButton.addActionListener(actionListener);
+
+        JButton viewButton = new JButton("View All Reservations");
+        viewButton.setActionCommand("View All Reservations");
+        viewButton.addActionListener(actionListener);
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setActionCommand("Logout");
+        logoutButton.addActionListener(actionListener);
+
+        JButton deleteAccountButton = new JButton("Delete Account");
+        deleteAccountButton.setActionCommand("Delete Account");
+        deleteAccountButton.addActionListener(actionListener);
+
+        panel.add(addReservationButton);
+        panel.add(joinEventButton);
+        panel.add(removeReservationButton);
+        panel.add(viewButton);
+        panel.add(logoutButton);
+        panel.add(deleteAccountButton);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
     }
 
     public static void joinEvent(Socket socket) {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
-            System.out.print("Enter event name: ");
-            String eventName = scanner.nextLine();
+        try {
+
+
+            String eventName = JOptionPane.showInputDialog(null, "Enter event name");
+
 
             writer.println("joinEvent");
             writer.println(currentUser.getUsername());
@@ -156,15 +234,19 @@ public class Client implements InterfaceClient {
             String line = reader.readLine();
 
             if (line.startsWith("Sorry") || line.equals("Event not found.")) {
-                System.out.println(line);
+                JOptionPane.showMessageDialog(null, "Event not found. Please try again.");
                 return;
             }
 
             // Print available tables
-            System.out.println(line);
+            //System.out.println(line);
 
-            System.out.print("Enter table number: ");
-            int table = Integer.parseInt(scanner.nextLine());
+            //System.out.print("Enter table number: ");
+            //int table = Integer.parseInt(scanner.nextLine());
+
+            String temp = JOptionPane.showInputDialog(null, "Enter table number");
+
+            int table = Integer.parseInt(temp);
 
             writer.println(table);
             writer.flush();
@@ -177,21 +259,27 @@ public class Client implements InterfaceClient {
     }
 
     public static void addReservation(Socket socket) {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+        String[] nextSevenDays = ReservationValidator.getNextSevenDays();
+        String date = (String) JOptionPane.showInputDialog(null, "Select a reservation date",
+                "Reservations", JOptionPane.PLAIN_MESSAGE, null, nextSevenDays, null);
 
+        if (date == null) {
+            return;
+        }
+        try {
             // Gathers reservation info to create it in Server
-            System.out.print("Enter date (MM/DD/YYYY): ");
-            String date = scanner.nextLine();
             boolean valid = ReservationValidator.validReservation(date);
             if (!valid) {
+                JOptionPane.showMessageDialog(null, "Invalid date. Please try again.");
                 return;
             }
-            System.out.print("Enter time (24-hour format, e.g., 0900, 1900): ");
-            String time = scanner.nextLine();
+            String time = JOptionPane.showInputDialog(null, "Enter time (24-hour format, e.g., 0900, 1900):");
+            if (time == null) {
+                return;
+            }
             boolean validTime = ReservationValidator.validTime(time, date);
             if (!validTime) {
+                JOptionPane.showMessageDialog(null, "Invalid time. Please try again.");
                 return;
             }
             int resTime = Integer.parseInt(time);
@@ -202,27 +290,47 @@ public class Client implements InterfaceClient {
             String times = reader.readLine();     // Example: "800:2200"
             int openTime = Integer.parseInt(times.split(":")[0]);
             int closeTime = Integer.parseInt(times.split(":")[1]);
+            String openTime2;
+            String closeTime2;
+
+
+            // Displaying AM/PM time to make it more user-friendly
+            if (openTime < 1200) {
+                openTime2 = ((openTime / 100) % 12) + ":00 AM";
+            } else {
+                openTime2 = ((openTime / 100) % 12) + ":00 PM";
+            }
+            if (closeTime < 1200) {
+                closeTime2 = ((closeTime / 100) % 12) + ":00 AM";
+            } else {
+                closeTime2 = ((closeTime / 100) % 12) + ":00 PM";
+            }
+
+
 
             if (resTime < openTime || resTime >= closeTime) {
-                System.out.println("Please select a time between " + openTime + " and " + closeTime);
+                JOptionPane.showMessageDialog(null, "Please select a time between " + openTime2 + " and " + closeTime2 + ".");
                 return;
             }
 
-            System.out.print("Enter number of guests: ");
-            int guests;
+
+            //System.out.print("Enter number of guests: ");
+            String guest = JOptionPane.showInputDialog(null, "Enter number of guests!");
+            if (guest == null) {
+                return;
+            }
             try {
-                guests = Integer.parseInt(scanner.nextLine());
+                int guests = Integer.parseInt(guest);
                 if (guests < 1 || guests > 12) {
-                    System.out.println("Invalid guest number. Reservation cancelled.");
+                    JOptionPane.showMessageDialog(null, "Invalid guest number. Reservation cancelled.");
                     return;
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid guest number. Reservation cancelled.");
+                JOptionPane.showMessageDialog(null, "Invalid guest number. Reservation cancelled.");
                 return;
             }
 
 
-            System.out.print("Available Tables: ");
 
             // Get available tables, then display them here
             writer.println("addReservation");
@@ -232,35 +340,45 @@ public class Client implements InterfaceClient {
             writer.println(currentUser.getUsername());
             writer.println(date);
             writer.println(resTime);
-            writer.println(guests);
+            writer.println(guest);
             writer.flush();
 
-            System.out.println(reader.readLine());
-            System.out.print("Please enter the table number requested: ");
 
-            int table;
-            try {
-                table = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid table number. Reservation cancelled.");
+            String line = reader.readLine();
+            String[] availableTables = line.split(", ");
+
+            String userChoice;
+            if (availableTables.length == 1 && !availableTables[0].contains("Table")) {
+                JOptionPane.showMessageDialog(null, "No available tables.");
                 return;
             }
+            userChoice = (String) JOptionPane.showInputDialog(null, "Select your table", "Table", JOptionPane.PLAIN_MESSAGE, null, availableTables, null);
+
+            if (userChoice == null) {
+                return;
+            }
+            String[] tableNumber = userChoice.split(" ");
+
+
+
+            int table = Integer.parseInt(tableNumber[1]);
 
             // "Credit card payment"
-            System.out.print("Enter credit card number (16 digits): ");
-            String card = scanner.nextLine();
-            if (!card.matches("\\d{16}")) {
-                System.out.println("Invalid credit card. Reservation cancelled.");
+            String card = JOptionPane.showInputDialog(null, "Enter credit card number (16 digits)", "Card", JOptionPane.PLAIN_MESSAGE);
+            if (card == null) {
                 return;
             }
-            System.out.println("Payment is being processed...");
+            if (!card.matches("\\d{16}")) {
+                JOptionPane.showMessageDialog(null, "Invalid credit card. Reservation cancelled.");
+                return;
+            }
+            JOptionPane.showMessageDialog(null, "Payment complete");
 
             // Send remaining reservation info
             writer.println(table);
             writer.flush();
 
             // Display Server output on reservation creation
-            System.out.println(reader.readLine());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -268,8 +386,6 @@ public class Client implements InterfaceClient {
 
     public static void removeReservation(Socket socket) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
             // Repeat of view reservations code
             writer.println("viewReservations");
@@ -277,36 +393,46 @@ public class Client implements InterfaceClient {
             writer.flush();
 
             String allReservations = reader.readLine();
-            System.out.println(allReservations);
 
             if (allReservations.equals("No reservations found")) {
+                JOptionPane.showMessageDialog(null, "No reservations found.");
                 return;
             }
 
             // Format current reservations so it's just their ID's (so they can be sent back to Server)
             String[] reservationStrings = allReservations.substring(25).split("\\)");
+
+            // New array which the user sees
+            String[] displayReservations = new String[reservationStrings.length];
             for (int i = 0; i < reservationStrings.length; i++) {
                 reservationStrings[i] = reservationStrings[i].substring(reservationStrings[i].indexOf(" ") + 1,
                                 reservationStrings[i].indexOf(','));
-            }
+                System.out.println(reservationStrings[i]);
+                displayReservations[i] = ((i + 1) + ".) " + reservationStrings[i]);
+                System.out.println(displayReservations[i]);
 
-            System.out.print("Enter the reservation number you would like to remove: ");
-            try {
-                int removedReservationNum = Integer.parseInt(scanner.nextLine());
+            }
+            String userChoice = (String) JOptionPane.showInputDialog(null, "Select a reservation to cancel.",
+                    "Reservations", JOptionPane.PLAIN_MESSAGE, null, displayReservations, null);
+            if (userChoice == null) {
+                return;
+            }
+            String[] temp = userChoice.split("\\.\\) ");
+            int num = Integer.parseInt(temp[0]);
+
+
 
                 //Check if reservationNum is a valid number
-                if (removedReservationNum <= 0 || removedReservationNum > reservationStrings.length)
-                    throw new NumberFormatException();
 
                 // Send reservationID to server to be removed
                 writer.println("removeReservation");
-                writer.println(reservationStrings[removedReservationNum - 1]);
+                writer.println(reservationStrings[num - 1]);
                 writer.flush();
 
-                System.out.println(reader.readLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid reservation number. Reservation removal cancelled.");
-            }
+                reader.readLine();
+
+                JOptionPane.showMessageDialog(null, "Reservation cancelled.");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -314,8 +440,8 @@ public class Client implements InterfaceClient {
 
     public static void viewReservations(Socket socket) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(socket.getOutputStream());
 
             // Send username to Server so it can display appropriate reservations
             writer.println("viewReservations");
@@ -330,28 +456,22 @@ public class Client implements InterfaceClient {
     }
 
     public static void deleteAccount(Socket socket) {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
-
-            // Confirm w/ user
-            System.out.print("Are you sure?\n[y / n]: ");
-            if (scanner.nextLine().toLowerCase().equals("n")) {
-                return;
-            }
-
-            // Send correct user to be deleted to Server
-            writer.println("deleteAccount");
-            writer.println(currentUser.getUsername());
-            writer.flush();
-
-            currentUser = null;
-
-            System.out.println(reader.readLine());
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        // Confirm w/ user
+        int option = JOptionPane.showConfirmDialog(null, "Confirm account deletion?", "Account deletion", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.NO_OPTION) {
+            return;
         }
+
+        // Send correct user to be deleted to Server
+        writer.println("deleteAccount");
+        writer.println(currentUser.getUsername());
+        writer.flush();
+
+        currentUser = null;
+
+        JOptionPane.showMessageDialog(null, "Account deleted");
+        loggedIn = false;
+
     }
 
     // Main method
@@ -359,26 +479,29 @@ public class Client implements InterfaceClient {
         try {
             // Network setup
             Socket socket = new Socket("localhost", 1234);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(socket.getOutputStream(), true);
 
             // Starter code to repeat showing a menu based on whether the user is logged in
-            System.out.println("Welcome to Reservation Manager!");
-            while (running) {
-                if (currentUser == null) {
-                    signedOutMenu(socket);
-                } else {
-                    mainMenu(socket);
-                }
-            }
+            //System.out.println("Welcome to Reservation Manager!");
+            //while (running) {
+              //  if (currentUser == null) {
+                 //   signedOutMenu(socket);
+                //} else {
+                  //  mainMenu(socket);
+                //}
+          //  }
+
+            signedOutMenu(socket);
 
 
             //Close Client tools
             System.out.println("Thank you for using the Reservation Manager!");
-            writer.close();
-            reader.close();
+            //writer.close();
+            //reader.close();
         } catch (IOException e) {
-            System.out.println("Couldn't connect to server!");
+            JOptionPane.showMessageDialog(null, "Couldn't connect to the server!","Connection Error" ,
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

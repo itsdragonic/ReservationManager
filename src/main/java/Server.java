@@ -58,7 +58,7 @@ public class Server implements InterfaceServer, Runnable {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(socket.getInputStream())
             );
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
 
             while (true) {
                 String command = reader.readLine();
@@ -129,7 +129,8 @@ public class Server implements InterfaceServer, Runnable {
                                 for (int s = guests; s <= db.getBiggestSeating(); s++) {
                                     for (Table t2 : db.getTablesBySeats(s)) {
                                         if (t.getTableNum() == t2.getTableNum()) {
-                                            writer.write(String.format("Table: %d (%d seats, $%d), ",
+                                            // changed formatting
+                                            writer.write(String.format("Table: %d (%d Seats $%d), ",
                                                     t.getTableNum(), t.getSeats(), t.getPrice()));
                                             availableTables.add(t.getTableNum());
                                         }
@@ -148,7 +149,7 @@ public class Server implements InterfaceServer, Runnable {
 
                         synchronized (db) {
                             if (db.addReservation(res) && availableTables.contains(table)) {
-                                writer.println("Reservation added successfully!");
+                                //writer.println("Reservation added successfully!");
                             } else {
                                 writer.println("Failed to add reservation. Please try again");
                             }

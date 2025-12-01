@@ -34,10 +34,14 @@ public class ReservationValidator implements InterfaceReservationValidator {
             return false;
         }
 
-        if (reservation.getYear() != today.getYear()) {
+        // automatically checks if it is within the same year
+
+        /*if (reservation.getYear() != today.getYear()) {
             System.out.println("Please enter a day within the same year.");
             return false;
         }
+
+         */
 
         if (reservation.isAfter(sevenDays) || reservation.isBefore(today)) {
             System.out.println("Please enter a day within 7 days");
@@ -69,6 +73,20 @@ public class ReservationValidator implements InterfaceReservationValidator {
         } else {
             return true;
         }
+    }
+    public static String getCurrentDate() {
+        LocalDate today = LocalDate.now();
+        return today.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+    }
+    // More user-friendly allows users to pick a day within 7 days instead of typing it
+    public static String[] getNextSevenDays() {
+        String[] week = new String[8];
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i < 8; i++) {
+            LocalDate goon = today.plusDays(i);
+            week[i] = goon.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        }
+        return week;
     }
 }
 
