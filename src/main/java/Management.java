@@ -10,6 +10,7 @@ import java.util.List;
  */
 
 public class Management {
+
     private int openTime;
     private int closeTime;
     private List<Integer> lockedSeats; // for events

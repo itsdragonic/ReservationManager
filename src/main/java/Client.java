@@ -121,8 +121,6 @@ public class Client implements InterfaceClient {
         String password = JOptionPane.showInputDialog(null, "Enter Password");
 
         try {
-            //reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //writer = new PrintWriter(socket.getOutputStream());
 
             // Send sign up info to Server to confirm
             writer.println("signUp");
@@ -221,8 +219,6 @@ public class Client implements InterfaceClient {
     public static void joinEvent(Socket socket) {
 
         try {
-
-
             String eventName = JOptionPane.showInputDialog(null, "Enter event name");
 
 
@@ -273,64 +269,51 @@ public class Client implements InterfaceClient {
                 JOptionPane.showMessageDialog(null, "Invalid date. Please try again.");
                 return;
             }
-            String time = JOptionPane.showInputDialog(null, "Enter time (24-hour format, e.g., 0900, 1900):");
+            writer.println("getTimes");
+            writer.flush();
+
+            // Ask server for open/close times
+            String times = reader.readLine();     // Example: "800:2200"
+            String openTime = times.split(":")[0];
+            if (openTime.length() == 3) {
+                openTime = "0" + openTime;
+            }
+            String closeTime = times.split(":")[1];
+
+            ArrayList<String> temp = ReservationValidator.getAvailableTime(date, openTime, closeTime);
+            String[] availableTimes = new String[temp.size()];
+            for (int i = 0; i < temp.size(); i++) {
+                availableTimes[i] = temp.get(i);
+            }
+            if (availableTimes.length == 0) {
+                JOptionPane.showMessageDialog(null, "No available times. Please try again.");
+                return;
+            }
+
+            String time = (String) JOptionPane.showInputDialog(null, "Select reservation time", "Time", JOptionPane.PLAIN_MESSAGE, null, availableTimes, null);
             if (time == null) {
                 return;
             }
+            time = time.split(":")[0] + time.split(":")[1];
+
             boolean validTime = ReservationValidator.validTime(time, date);
             if (!validTime) {
                 JOptionPane.showMessageDialog(null, "Invalid time. Please try again.");
                 return;
             }
             int resTime = Integer.parseInt(time);
-            // Ask server for open/close times
-            writer.println("getTimes");
-            writer.flush();
 
-            String times = reader.readLine();     // Example: "800:2200"
-            int openTime = Integer.parseInt(times.split(":")[0]);
-            int closeTime = Integer.parseInt(times.split(":")[1]);
-            String openTime2;
-            String closeTime2;
-
-
-            // Displaying AM/PM time to make it more user-friendly
-            if (openTime < 1200) {
-                openTime2 = ((openTime / 100) % 12) + ":00 AM";
-            } else {
-                openTime2 = ((openTime / 100) % 12) + ":00 PM";
-            }
-            if (closeTime < 1200) {
-                closeTime2 = ((closeTime / 100) % 12) + ":00 AM";
-            } else {
-                closeTime2 = ((closeTime / 100) % 12) + ":00 PM";
+            String[] guestArray = new String[12];
+            for (int i = 0; i < 12; i++) {
+                guestArray[i] = "" + (i + 1);
             }
 
-
-
-            if (resTime < openTime || resTime >= closeTime) {
-                JOptionPane.showMessageDialog(null, "Please select a time between " + openTime2 + " and " + closeTime2 + ".");
-                return;
-            }
-
-
-            //System.out.print("Enter number of guests: ");
-            String guest = JOptionPane.showInputDialog(null, "Enter number of guests!");
+            // Changed into a dropdown box to make more User-friendly
+            String guest = (String) JOptionPane.showInputDialog(null, "Select number of guests", "Guests",
+                    JOptionPane.PLAIN_MESSAGE, null, guestArray, null);
             if (guest == null) {
                 return;
             }
-            try {
-                int guests = Integer.parseInt(guest);
-                if (guests < 1 || guests > 12) {
-                    JOptionPane.showMessageDialog(null, "Invalid guest number. Reservation cancelled.");
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Invalid guest number. Reservation cancelled.");
-                return;
-            }
-
-
 
             // Get available tables, then display them here
             writer.println("addReservation");
@@ -355,11 +338,11 @@ public class Client implements InterfaceClient {
             userChoice = (String) JOptionPane.showInputDialog(null, "Select your table", "Table", JOptionPane.PLAIN_MESSAGE, null, availableTables, null);
 
             if (userChoice == null) {
+                writer.println("cancel");
+                writer.flush();
                 return;
             }
             String[] tableNumber = userChoice.split(" ");
-
-
 
             int table = Integer.parseInt(tableNumber[1]);
 
@@ -407,11 +390,10 @@ public class Client implements InterfaceClient {
             for (int i = 0; i < reservationStrings.length; i++) {
                 reservationStrings[i] = reservationStrings[i].substring(reservationStrings[i].indexOf(" ") + 1,
                                 reservationStrings[i].indexOf(','));
-                System.out.println(reservationStrings[i]);
                 displayReservations[i] = ((i + 1) + ".) " + reservationStrings[i]);
-                System.out.println(displayReservations[i]);
 
             }
+
             String userChoice = (String) JOptionPane.showInputDialog(null, "Select a reservation to cancel.",
                     "Reservations", JOptionPane.PLAIN_MESSAGE, null, displayReservations, null);
             if (userChoice == null) {
@@ -440,15 +422,39 @@ public class Client implements InterfaceClient {
 
     public static void viewReservations(Socket socket) {
         try {
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(socket.getOutputStream());
-
             // Send username to Server so it can display appropriate reservations
             writer.println("viewReservations");
             writer.println(currentUser.getUsername());
             writer.flush();
 
-            System.out.println(reader.readLine());
+            String allReservations = reader.readLine();
+
+            if (allReservations.equals("No reservations found")) {
+                JOptionPane.showMessageDialog(null, "No reservations found.");
+                return;
+            }
+
+            // Format current reservations so it's just their ID's (so they can be sent back to Server)
+            String[] reservationStrings = allReservations.substring(25).split("\\)");
+
+            // New array which the user sees
+            String[] displayReservations = new String[reservationStrings.length];
+            for (int i = 0; i < reservationStrings.length; i++) {
+                reservationStrings[i] = reservationStrings[i].substring(reservationStrings[i].indexOf(" ") + 1,
+                        reservationStrings[i].indexOf(','));
+                displayReservations[i] = ((i + 1) + ".) " + reservationStrings[i]);
+            }
+
+                String userChoice = (String) JOptionPane.showInputDialog(null, "Current Reservations",
+                        "Reservations", JOptionPane.PLAIN_MESSAGE, null, displayReservations, null);
+                if (userChoice == null) {
+                    return;
+                }
+
+
+
+
+
 
         } catch (IOException e) {
             e.printStackTrace();

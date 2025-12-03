@@ -142,7 +142,21 @@ public class Server implements InterfaceServer, Runnable {
                         writer.println();
                         writer.flush();
 
-                        int table = Integer.parseInt(reader.readLine());
+                        String tableString = reader.readLine();
+                        System.out.println(tableString);
+                        if (tableString.equals("cancel")) {
+                            writer.println("Reservation cancelled!");
+                            writer.flush();
+                            return;
+                        }
+
+                        int table;
+
+                        try {
+                            table = Integer.parseInt(tableString);
+                        } catch (NumberFormatException e) {
+                            return;
+                        }
 
                         // Send back result of adding the reservation to Client
                         Reservation res = new Reservation(name, table, date, time, guests);
@@ -303,6 +317,7 @@ public class Server implements InterfaceServer, Runnable {
                         writer.flush();
                         break;
                     }
+
 
                     // Error code if a command isn't accounted for in the cases above
                     // More a debugging tool than anything else
