@@ -29,7 +29,7 @@ public class Client implements InterfaceClient {
     public static BufferedReader reader;
     public static PrintWriter writer;
     public static boolean loggedIn = false;
-
+    public static boolean loggedInAdmin = false;
 
 
     // This menu is what is always first shown
@@ -40,9 +40,12 @@ public class Client implements InterfaceClient {
             public void actionPerformed(ActionEvent e) {
                 if (e.getActionCommand().equals("Login")) {
                     login(socket);
-                    if (loggedIn) {
+                    if (loggedInAdmin) {
                         frame1.dispose();
-                        mainMenu(socket);
+                        adminMenu(socket);  // Go to admin menu
+                    } else if (loggedIn) {
+                        frame1.dispose();
+                        mainMenu(socket);   // Go to regular menu
                     }
                 } else if (e.getActionCommand().equals("Sign Up")) {
                     signUp(socket);
@@ -100,7 +103,6 @@ public class Client implements InterfaceClient {
 
         // Send login info to Server to confirm
 
-
         try {
             // Compare server output
             writer.println("login");
@@ -114,6 +116,10 @@ public class Client implements InterfaceClient {
                 currentUser = new User(username, password, new ArrayList<Reservation>(), 0);
                 JOptionPane.showMessageDialog(null, "Login Successful, welcome " + username + "!");
                 loggedIn = true;
+            } else if (result.equals("admin")) {
+                currentUser = new User(username, password, new ArrayList<Reservation>(), 0);
+                JOptionPane.showMessageDialog(null, "Login Successful, welcome " + username + "!");
+                loggedInAdmin = true;
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid username or password. Please try again.");
             }
@@ -169,6 +175,7 @@ public class Client implements InterfaceClient {
                     currentUser = null;
                     signedOutMenu(socket);
                     loggedIn = false;
+                    loggedInAdmin = false;
                     frame.dispose();
                 } else if (e.getActionCommand().equals("Delete Account")) {
                     deleteAccount(socket);
@@ -227,6 +234,570 @@ public class Client implements InterfaceClient {
         frame.add(panel);
         frame.setVisible(true);
 
+    }
+
+    public static void adminMenu(Socket socket) {
+        JFrame frame = new JFrame("Admin Menu");
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getActionCommand().equals("Set Hours")) {
+                    setOpenCloseHours(socket);
+                } else if (e.getActionCommand().equals("Edit Seating")) {
+                    editSeatingArrangement(socket);
+                } else if (e.getActionCommand().equals("Create Event")) {
+                    createEvent(socket);
+                } else if (e.getActionCommand().equals("Change Prices")) {
+                    changePrices(socket);
+                } else if (e.getActionCommand().equals("Logout")) {
+                    currentUser = null;
+                    signedOutMenu(socket);
+                    loggedIn = false;
+                    loggedInAdmin = false;
+                    frame.dispose();
+                }
+            }
+        };
+
+        ImageIcon logoIcon = new ImageIcon("logo.png");
+        JLabel logoLabel = new JLabel(logoIcon);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        logoLabel.setVerticalAlignment(SwingConstants.CENTER);
+        frame.add(logoLabel, BorderLayout.NORTH);
+
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(1280, 720);
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        frame.setResizable(true);
+
+        JLabel adminLabel = new JLabel(" ADMIN ");
+        adminLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        adminLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(adminLabel);
+
+        JButton setHoursButton = new JButton("Set Open/Close Hours");
+        setHoursButton.setActionCommand("Set Hours");
+        setHoursButton.addActionListener(actionListener);
+        setHoursButton.setPreferredSize(new Dimension(250, 80));
+
+        JButton editSeatingButton = new JButton("Edit Seating Arrangement");
+        editSeatingButton.setActionCommand("Edit Seating");
+        editSeatingButton.addActionListener(actionListener);
+        editSeatingButton.setPreferredSize(new Dimension(250, 80));
+
+        JButton createEventButton = new JButton("Create Event");
+        createEventButton.setActionCommand("Create Event");
+        createEventButton.addActionListener(actionListener);
+        createEventButton.setPreferredSize(new Dimension(250, 80));
+
+        JButton changePricesButton = new JButton("Change Prices");
+        changePricesButton.setActionCommand("Change Prices");
+        changePricesButton.addActionListener(actionListener);
+        changePricesButton.setPreferredSize(new Dimension(250, 80));
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setActionCommand("Logout");
+        logoutButton.addActionListener(actionListener);
+        logoutButton.setPreferredSize(new Dimension(250, 80));
+
+        panel.add(setHoursButton);
+        panel.add(editSeatingButton);
+        panel.add(createEventButton);
+        panel.add(changePricesButton);
+        panel.add(logoutButton);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+
+    public static void setOpenCloseHours(Socket socket) {
+        try {
+            // Generate time options in 15 minute increments (military time)
+            ArrayList<String> timeOptions = new ArrayList<>();
+            for (int hour = 0; hour < 24; hour++) {
+                for (int minute = 0; minute < 60; minute += 15) {
+                    String time = String.format("%02d%02d", hour, minute);
+                    timeOptions.add(time);
+                }
+            }
+
+            String[] times = timeOptions.toArray(new String[0]);
+
+            // Get current hours from server
+            writer.println("getHours");
+            writer.flush();
+
+            String currentHours = reader.readLine(); // Format: "800:2200"
+            String[] parts = currentHours.split(":");
+            String currentOpen = parts[0];
+            String currentClose = parts[1];
+
+            // Format current times for display
+            if (currentOpen.length() == 3) currentOpen = "0" + currentOpen;
+            if (currentClose.length() == 3) currentClose = "0" + currentClose;
+
+            // Select new open time
+            String newOpenTime = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Current open time: " + currentOpen + "\nSelect new open time:",
+                    "Set Open Time",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    times,
+                    currentOpen
+            );
+
+            if (newOpenTime == null) return; // User cancelled
+
+            // Select new close time
+            String newCloseTime = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Current close time: " + currentClose + "\nSelect new close time:",
+                    "Set Close Time",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    times,
+                    currentClose
+            );
+
+            if (newCloseTime == null) return; // User cancelled
+
+            // Validate that close time is after open time
+            int openInt = Integer.parseInt(newOpenTime);
+            int closeInt = Integer.parseInt(newCloseTime);
+
+            if (closeInt <= openInt) {
+                JOptionPane.showMessageDialog(null, "Close time must be after open time!");
+                return;
+            }
+
+            // Send to server
+            writer.println("setHours");
+            writer.println(newOpenTime);
+            writer.println(newCloseTime);
+            writer.flush();
+
+            String result = reader.readLine();
+            JOptionPane.showMessageDialog(null, result);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
+        }
+    }
+
+    public static void editSeatingArrangement(Socket socket) {
+        try {
+            // Request current seating data from server
+            writer.println("getSeating");
+            writer.flush();
+
+            String seatingData = reader.readLine();
+
+            if (seatingData.equals("No seating data")) {
+                JOptionPane.showMessageDialog(null, "No seating data found.");
+                return;
+            }
+
+            // Parse seating data: "1:15:25|2:10:40|4:25:75|8:10:140|12:5:200"
+            // Format: seats:quantity:price|seats:quantity:price...
+            String[] seatGroups = seatingData.split("\\|");
+
+            // Create display options
+            ArrayList<String> options = new ArrayList<>();
+            options.add("Add New Seat Size");
+
+            for (String group : seatGroups) {
+                String[] parts = group.split(":");
+                int seats = Integer.parseInt(parts[0]);
+                int quantity = Integer.parseInt(parts[1]);
+                int price = Integer.parseInt(parts[2]);
+                options.add(seats + " Seats - Quantity: " + quantity + " - $" + price);
+            }
+
+            String[] optionsArray = options.toArray(new String[0]);
+
+            String choice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Select seating arrangement to edit:",
+                    "Edit Seating",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    optionsArray,
+                    null
+            );
+
+            if (choice == null) return;
+
+            if (choice.equals("Add New Seat Size")) {
+                // Add new seat size
+                String seatsInput = JOptionPane.showInputDialog(null, "Enter number of seats:");
+                if (seatsInput == null) return;
+
+                String quantityInput = JOptionPane.showInputDialog(null, "Enter quantity of tables:");
+                if (quantityInput == null) return;
+
+                String priceInput = JOptionPane.showInputDialog(null, "Enter price:");
+                if (priceInput == null) return;
+
+                try {
+                    int seats = Integer.parseInt(seatsInput);
+                    int quantity = Integer.parseInt(quantityInput);
+                    int price = Integer.parseInt(priceInput);
+
+                    if (seats <= 0 || quantity <= 0 || price <= 0) {
+                        JOptionPane.showMessageDialog(null, "All values must be positive!");
+                        return;
+                    }
+
+                    writer.println("addSeating");
+                    writer.println(seats);
+                    writer.println(quantity);
+                    writer.println(price);
+                    writer.flush();
+
+                    String result = reader.readLine();
+                    JOptionPane.showMessageDialog(null, result);
+
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Invalid input! Please enter numbers only.");
+                }
+
+            } else {
+                // Edit existing seat size - extract the seat number
+                String[] parts = choice.split(" ");
+                int seats = Integer.parseInt(parts[0]);
+
+                String newQuantity = JOptionPane.showInputDialog(null,
+                        "Current seating: " + choice + "\nEnter new quantity:");
+
+                if (newQuantity == null) return;
+
+                try {
+                    int quantity = Integer.parseInt(newQuantity);
+
+                    if (quantity < 0) {
+                        JOptionPane.showMessageDialog(null, "Quantity cannot be negative!");
+                        return;
+                    }
+
+                    writer.println("updateSeating");
+                    writer.println(seats);
+                    writer.println(quantity);
+                    writer.flush();
+
+                    String result = reader.readLine();
+                    JOptionPane.showMessageDialog(null, result);
+
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Invalid input! Please enter a number.");
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
+        }
+    }
+
+    public static void createEvent(Socket socket) {
+        String[] options = {"Create Event", "Delete Event"};
+
+        String choice = (String) JOptionPane.showInputDialog(
+                null,
+                "Select an option:",
+                "Event Management",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                null
+        );
+
+        if (choice == null) return;
+
+        if (choice.equals("Create Event")) {
+            createNewEvent(socket);
+        } else {
+            deleteExistingEvent(socket);
+        }
+    }
+
+    public static void createNewEvent(Socket socket) {
+        try {
+            // Get event name
+            String eventName = JOptionPane.showInputDialog(null, "Enter event name:");
+            if (eventName == null || eventName.trim().isEmpty()) return;
+
+            // Get date - allow any future date
+            String dateInput = JOptionPane.showInputDialog(null, "Enter date (MM/DD/YYYY):");
+            if (dateInput == null) return;
+
+            // Validate date format
+            if (!dateInput.matches("\\d{2}/\\d{2}/\\d{4}")) {
+                JOptionPane.showMessageDialog(null, "Invalid date format. Please use MM/DD/YYYY");
+                return;
+            }
+
+            // Generate time options in 15 minute increments (military time)
+            ArrayList<String> timeOptions = new ArrayList<>();
+            for (int hour = 0; hour < 24; hour++) {
+                for (int minute = 0; minute < 60; minute += 15) {
+                    String time = String.format("%02d:%02d", hour, minute);
+                    timeOptions.add(time);
+                }
+            }
+
+            String[] times = timeOptions.toArray(new String[0]);
+
+            String timeChoice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Select event time:",
+                    "Event Time",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    times,
+                    null
+            );
+
+            if (timeChoice == null) return;
+
+            // Convert time to military format (remove colon)
+            String militaryTime = timeChoice.replace(":", "");
+            int eventTime = Integer.parseInt(militaryTime);
+
+            // Now select tables for the event
+            ArrayList<Integer> selectedTables = new ArrayList<>();
+            boolean selectingTables = true;
+
+            while (selectingTables) {
+                // Get available tables from server
+                writer.println("getAvailableTables");
+                writer.println(dateInput);
+                writer.println(eventTime);
+                writer.flush();
+
+                String tablesData = reader.readLine();
+
+                if (tablesData.equals("No tables available")) {
+                    JOptionPane.showMessageDialog(null, "No more tables available for this time.");
+                    break;
+                }
+
+                // Parse table data: "0:1:25|1:1:25|2:2:40..."
+                // Format: tableNum:seats:price|...
+                String[] tableArray = tablesData.split("\\|");
+                ArrayList<String> displayOptions = new ArrayList<>();
+                displayOptions.add("Done selecting tables");
+
+                for (String table : tableArray) {
+                    String[] parts = table.split(":");
+                    int tableNum = Integer.parseInt(parts[0]);
+
+                    // Skip if already selected
+                    if (selectedTables.contains(tableNum)) continue;
+
+                    int seats = Integer.parseInt(parts[1]);
+                    int price = Integer.parseInt(parts[2]);
+                    displayOptions.add("Table " + tableNum + " (" + seats + " seats, $" + price + ")");
+                }
+
+                if (displayOptions.size() == 1) {
+                    JOptionPane.showMessageDialog(null, "All available tables have been selected.");
+                    break;
+                }
+
+                String[] optionsArray = displayOptions.toArray(new String[0]);
+
+                String tableChoice = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Currently selected " + selectedTables.size() + " table(s)\nSelect a table to add:",
+                        "Select Tables",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        optionsArray,
+                        null
+                );
+
+                if (tableChoice == null || tableChoice.equals("Done selecting tables")) {
+                    selectingTables = false;
+                } else {
+                    // Extract table number from choice
+                    String[] parts = tableChoice.split(" ");
+                    int tableNum = Integer.parseInt(parts[1]);
+                    selectedTables.add(tableNum);
+                }
+            }
+
+            if (selectedTables.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "No tables selected. Event creation cancelled.");
+                return;
+            }
+
+            // Send event data to server
+            writer.println("createEvent");
+            writer.println(eventName);
+            writer.println(dateInput);
+            writer.println(eventTime);
+            writer.println(selectedTables.size());
+            for (int tableNum : selectedTables) {
+                writer.println(tableNum);
+            }
+            writer.flush();
+
+            String result = reader.readLine();
+            JOptionPane.showMessageDialog(null, result);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
+        }
+    }
+
+    public static void deleteExistingEvent(Socket socket) {
+        try {
+            // Request list of events from server
+            writer.println("getEvents");
+            writer.flush();
+
+            String eventsData = reader.readLine();
+
+            if (eventsData.equals("No events found")) {
+                JOptionPane.showMessageDialog(null, "No events to delete.");
+                return;
+            }
+
+            // Parse events: "eventName:date:time|eventName:date:time..."
+            String[] eventArray = eventsData.split("\\|");
+            ArrayList<String> displayOptions = new ArrayList<>();
+
+            for (String event : eventArray) {
+                String[] parts = event.split(":");
+                String name = parts[0];
+                String date = parts[1];
+                String time = parts[2];
+
+                // Format time for display
+                if (time.length() == 3) time = "0" + time;
+                String formattedTime = time.substring(0, 2) + ":" + time.substring(2);
+
+                displayOptions.add(name + " - " + date + " at " + formattedTime);
+            }
+
+            String[] optionsArray = displayOptions.toArray(new String[0]);
+
+            String choice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Select event to delete:",
+                    "Delete Event",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    optionsArray,
+                    null
+            );
+
+            if (choice == null) return;
+
+            // Extract event name from choice
+            String eventName = choice.split(" - ")[0];
+
+            // Confirm deletion
+            int confirm = JOptionPane.showConfirmDialog(
+                    null,
+                    "Are you sure you want to delete event: " + eventName + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm != JOptionPane.YES_OPTION) return;
+
+            // Send delete request to server
+            writer.println("deleteEvent");
+            writer.println(eventName);
+            writer.flush();
+
+            String result = reader.readLine();
+            JOptionPane.showMessageDialog(null, result);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
+        }
+    }
+
+    public static void changePrices(Socket socket) {
+        try {
+            // Request current seating data from server
+            writer.println("getSeating");
+            writer.flush();
+
+            String seatingData = reader.readLine();
+
+            if (seatingData.equals("No seating data")) {
+                JOptionPane.showMessageDialog(null, "No seating data found.");
+                return;
+            }
+
+            // Parse seating data: "1:15:25|2:10:40|4:25:75|8:10:140|12:5:200"
+            String[] seatGroups = seatingData.split("\\|");
+
+            // Create display options
+            ArrayList<String> options = new ArrayList<>();
+
+            for (String group : seatGroups) {
+                String[] parts = group.split(":");
+                int seats = Integer.parseInt(parts[0]);
+                int quantity = Integer.parseInt(parts[1]);
+                int price = Integer.parseInt(parts[2]);
+                options.add(seats + " Seats - Current Price: $" + price);
+            }
+
+            String[] optionsArray = options.toArray(new String[0]);
+
+            String choice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Select table size to change price:",
+                    "Change Prices",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    optionsArray,
+                    null
+            );
+
+            if (choice == null) return;
+
+            // Extract seat number from choice
+            String[] parts = choice.split(" ");
+            int seats = Integer.parseInt(parts[0]);
+
+            String newPriceInput = JOptionPane.showInputDialog(null,
+                    choice + "\nEnter new price:");
+
+            if (newPriceInput == null) return;
+
+            try {
+                int newPrice = Integer.parseInt(newPriceInput);
+
+                if (newPrice <= 0) {
+                    JOptionPane.showMessageDialog(null, "Price must be positive!");
+                    return;
+                }
+
+                writer.println("updatePrice");
+                writer.println(seats);
+                writer.println(newPrice);
+                writer.flush();
+
+                String result = reader.readLine();
+                JOptionPane.showMessageDialog(null, result);
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid input! Please enter a number.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
+        }
     }
 
     public static void joinEvent(Socket socket) {

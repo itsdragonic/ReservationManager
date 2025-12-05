@@ -6,3 +6,5 @@ ghost: password
 ecco2k: password
 
 demonstration: password
+
+admin: password123

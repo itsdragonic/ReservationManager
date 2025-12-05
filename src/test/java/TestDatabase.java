@@ -110,6 +110,7 @@ public class TestDatabase {
             bw.write("open:800:close:2200\n");
             bw.write("INVALID LINE WITHOUT COLONS\n");
             bw.write("event:TestEvent:03/15/2025:1400:2\n");
+            bw.write("event:JohnBirthday:03/15/2026:1400:60:61\n");
         }
 
         db = new Database();

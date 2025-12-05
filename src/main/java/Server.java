@@ -80,7 +80,11 @@ public class Server implements InterfaceServer, Runnable {
                             ok = testUser.login(username, password);
                         }
 
-                        writer.println(ok ? "success" : "failure");
+                        if (ok && username.equals("admin")) {
+                            writer.println("admin");
+                        } else {
+                            writer.println(ok ? "success" : "failure");
+                        }
                         writer.flush();
 
                         break;
@@ -318,6 +322,428 @@ public class Server implements InterfaceServer, Runnable {
                         break;
                     }
 
+                    case "getHours": {
+                        int open, close;
+                        synchronized (db) {
+                            open = db.getOpenTime();
+                            close = db.getCloseTime();
+                        }
+
+                        writer.println(open + ":" + close);
+                        writer.flush();
+                        break;
+                    }
+
+                    case "setHours": {
+                        String newOpenTime = reader.readLine();
+                        String newCloseTime = reader.readLine();
+
+                        int openInt = Integer.parseInt(newOpenTime);
+                        int closeInt = Integer.parseInt(newCloseTime);
+
+                        synchronized (db) {
+                            db.setOpenTime(openInt);
+                            db.setCloseTime(closeInt);
+
+                            // Update restaurant.txt file
+                            try {
+                                // Read all lines from restaurant.txt
+                                ArrayList<String> lines = new ArrayList<>();
+                                BufferedReader br = new BufferedReader(new FileReader("restaurant.txt"));
+                                String line = br.readLine();
+
+                                while (line != null) {
+                                    lines.add(line);
+                                    line = br.readLine();
+                                }
+                                br.close();
+
+                                // Modify first line with new hours
+                                if (!lines.isEmpty()) {
+                                    lines.set(0, "open:" + openInt + ":close:" + closeInt);
+                                } else {
+                                    lines.add("open:" + openInt + ":close:" + closeInt);
+                                }
+
+                                // Write back to file
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("restaurant.txt", false));
+                                for (int i = 0; i < lines.size(); i++) {
+                                    bw.write(lines.get(i));
+                                    if (i < lines.size() - 1) {
+                                        bw.newLine();
+                                    }
+                                }
+                                bw.close();
+
+                                writer.println("Hours updated successfully! Open: " + newOpenTime + " Close: " + newCloseTime);
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                writer.println("Failed to update hours in file.");
+                            }
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "getSeating": {
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader("seating.txt"));
+                            StringBuilder seatingData = new StringBuilder();
+                            String line = br.readLine();
+                            boolean first = true;
+
+                            while (line != null) {
+                                if (!line.trim().isEmpty() && line.contains(":")) {
+                                    // Parse: Quantity:15:Seats:1:Price:25
+                                    String[] parts = line.split(":");
+                                    int quantity = Integer.parseInt(parts[1]);
+                                    int seats = Integer.parseInt(parts[3]);
+                                    int price = Integer.parseInt(parts[5]);
+
+                                    if (!first) seatingData.append("|");
+                                    seatingData.append(seats).append(":").append(quantity).append(":").append(price);
+                                    first = false;
+                                }
+                                line = br.readLine();
+                            }
+                            br.close();
+
+                            if (seatingData.length() == 0) {
+                                writer.println("No seating data");
+                            } else {
+                                writer.println(seatingData.toString());
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Error reading seating data");
+                        }
+                        writer.flush();
+                        break;
+                    }
+
+                    case "addSeating": {
+                        String seatsStr = reader.readLine();
+                        String quantityStr = reader.readLine();
+                        String priceStr = reader.readLine();
+
+                        int seats = Integer.parseInt(seatsStr);
+                        int quantity = Integer.parseInt(quantityStr);
+                        int price = Integer.parseInt(priceStr);
+
+                        try {
+                            // Check if seat size already exists
+                            BufferedReader br = new BufferedReader(new FileReader("seating.txt"));
+                            String line = br.readLine();
+                            boolean exists = false;
+
+                            while (line != null) {
+                                if (line.contains("Seats:" + seats)) {
+                                    exists = true;
+                                    break;
+                                }
+                                line = br.readLine();
+                            }
+                            br.close();
+
+                            if (exists) {
+                                writer.println("Seat size " + seats + " already exists! Use edit to modify.");
+                            } else {
+                                // Append new seating
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("seating.txt", true));
+                                bw.newLine();
+                                bw.write("Quantity:" + quantity + ":Seats:" + seats + ":Price:" + price);
+                                bw.close();
+
+                                writer.println("Successfully added " + quantity + " tables with " + seats + " seats at $" + price);
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Failed to add seating.");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "updateSeating": {
+                        String seatsStr = reader.readLine();
+                        String quantityStr = reader.readLine();
+
+                        int seats = Integer.parseInt(seatsStr);
+                        int newQuantity = Integer.parseInt(quantityStr);
+
+                        try {
+                            // Read all lines
+                            ArrayList<String> lines = new ArrayList<>();
+                            BufferedReader br = new BufferedReader(new FileReader("seating.txt"));
+                            String line = br.readLine();
+                            boolean found = false;
+
+                            while (line != null) {
+                                if (line.contains("Seats:" + seats + ":")) {
+                                    // Update this line
+                                    String[] parts = line.split(":");
+                                    int price = Integer.parseInt(parts[5]);
+                                    lines.add("Quantity:" + newQuantity + ":Seats:" + seats + ":Price:" + price);
+                                    found = true;
+                                } else {
+                                    lines.add(line);
+                                }
+                                line = br.readLine();
+                            }
+                            br.close();
+
+                            if (!found) {
+                                writer.println("Seat size not found.");
+                            } else {
+                                // Write back to file
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("seating.txt", false));
+                                for (int i = 0; i < lines.size(); i++) {
+                                    bw.write(lines.get(i));
+                                    if (i < lines.size() - 1) bw.newLine();
+                                }
+                                bw.close();
+
+                                writer.println("Successfully updated quantity to " + newQuantity + " for " + seats + "-seat tables");
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Failed to update seating.");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "updatePrice": {
+                        String seatsStr = reader.readLine();
+                        String priceStr = reader.readLine();
+
+                        int seats = Integer.parseInt(seatsStr);
+                        int newPrice = Integer.parseInt(priceStr);
+
+                        try {
+                            // Read all lines
+                            ArrayList<String> lines = new ArrayList<>();
+                            BufferedReader br = new BufferedReader(new FileReader("seating.txt"));
+                            String line = br.readLine();
+                            boolean found = false;
+
+                            while (line != null) {
+                                if (line.contains("Seats:" + seats + ":")) {
+                                    // Update this line
+                                    String[] parts = line.split(":");
+                                    int quantity = Integer.parseInt(parts[1]);
+                                    lines.add("Quantity:" + quantity + ":Seats:" + seats + ":Price:" + newPrice);
+                                    found = true;
+                                } else {
+                                    lines.add(line);
+                                }
+                                line = br.readLine();
+                            }
+                            br.close();
+
+                            if (!found) {
+                                writer.println("Seat size not found.");
+                            } else {
+                                // Write back to file
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("seating.txt", false));
+                                for (int i = 0; i < lines.size(); i++) {
+                                    bw.write(lines.get(i));
+                                    if (i < lines.size() - 1) bw.newLine();
+                                }
+                                bw.close();
+
+                                writer.println("Successfully updated price to $" + newPrice + " for " + seats + "-seat tables");
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Failed to update price.");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "getAvailableTables": {
+                        String date = reader.readLine();
+                        int time = Integer.parseInt(reader.readLine());
+
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader("seating.txt"));
+                            StringBuilder tablesData = new StringBuilder();
+                            String line = br.readLine();
+                            boolean first = true;
+                            int tableIndex = 0;
+
+                            synchronized (db) {
+                                while (line != null) {
+                                    if (!line.trim().isEmpty() && line.contains(":")) {
+                                        // Parse: Quantity:15:Seats:1:Price:25
+                                        String[] parts = line.split(":");
+                                        int quantity = Integer.parseInt(parts[1]);
+                                        int seats = Integer.parseInt(parts[3]);
+                                        int price = Integer.parseInt(parts[5]);
+
+                                        // For each table of this type
+                                        for (int i = 0; i < quantity; i++) {
+                                            Table t = db.getTableByIndex(tableIndex);
+
+                                            // Check if table is available at this date/time
+                                            boolean available = true;
+                                            if (t != null) {
+                                                for (Reservation r : t.getReservations()) {
+                                                    if (r.getDay().equals(date) && Math.abs(r.getTime() - time) < 2) {
+                                                        available = false;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            if (available) {
+                                                if (!first) tablesData.append("|");
+                                                tablesData.append(tableIndex).append(":").append(seats).append(":").append(price);
+                                                first = false;
+                                            }
+
+                                            tableIndex++;
+                                        }
+                                    }
+                                    line = br.readLine();
+                                }
+                            }
+                            br.close();
+
+                            if (tablesData.length() == 0) {
+                                writer.println("No tables available");
+                            } else {
+                                writer.println(tablesData.toString());
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Error reading table data");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "createEvent": {
+                        String eventName = reader.readLine();
+                        String date = reader.readLine();
+                        int time = Integer.parseInt(reader.readLine());
+                        int numTables = Integer.parseInt(reader.readLine());
+
+                        ArrayList<Integer> tables = new ArrayList<>();
+                        for (int i = 0; i < numTables; i++) {
+                            tables.add(Integer.parseInt(reader.readLine()));
+                        }
+
+                        try {
+                            // Append event to restaurant.txt
+                            BufferedWriter bw = new BufferedWriter(new FileWriter("restaurant.txt", true));
+                            bw.newLine();
+                            bw.write("event:" + eventName + ":" + date + ":" + time);
+                            for (int table : tables) {
+                                bw.write(":" + table);
+                            }
+                            bw.close();
+
+                            // Add to database events list
+                            synchronized (db) {
+                                db.getEvents().add(new Event(eventName, date, time, tables));
+                            }
+
+                            writer.println("Event '" + eventName + "' created successfully with " + numTables + " table(s)!");
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Failed to create event.");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "getEvents": {
+                        synchronized (db) {
+                            ArrayList<Event> events = db.getEvents();
+
+                            if (events.isEmpty()) {
+                                writer.println("No events found");
+                            } else {
+                                StringBuilder eventsData = new StringBuilder();
+                                boolean first = true;
+
+                                for (Event event : events) {
+                                    if (!first) eventsData.append("|");
+                                    eventsData.append(event.name).append(":").append(event.date).append(":").append(event.time);
+                                    first = false;
+                                }
+
+                                writer.println(eventsData.toString());
+                            }
+                        }
+
+                        writer.flush();
+                        break;
+                    }
+
+                    case "deleteEvent": {
+                        String eventName = reader.readLine();
+
+                        try {
+                            // Read all lines from restaurant.txt
+                            ArrayList<String> lines = new ArrayList<>();
+                            BufferedReader br = new BufferedReader(new FileReader("restaurant.txt"));
+                            String line = br.readLine();
+                            boolean found = false;
+
+                            while (line != null) {
+                                // Skip the line that contains this event
+                                if (line.contains("event:" + eventName + ":")) {
+                                    found = true;
+                                } else {
+                                    lines.add(line);
+                                }
+                                line = br.readLine();
+                            }
+                            br.close();
+
+                            if (!found) {
+                                writer.println("Event not found.");
+                            } else {
+                                // Write back to file
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("restaurant.txt", false));
+                                for (int i = 0; i < lines.size(); i++) {
+                                    bw.write(lines.get(i));
+                                    if (i < lines.size() - 1) bw.newLine();
+                                }
+                                bw.close();
+
+                                // Remove from database events list
+                                synchronized (db) {
+                                    db.getEvents().removeIf(e -> e.name.equals(eventName));
+                                }
+
+                                writer.println("Event '" + eventName + "' deleted successfully!");
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            writer.println("Failed to delete event.");
+                        }
+
+                        writer.flush();
+                        break;
+                    }
 
                     // Error code if a command isn't accounted for in the cases above
                     // More a debugging tool than anything else
