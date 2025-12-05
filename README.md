@@ -221,11 +221,6 @@ _(in alphabetical order)_
     1. By Fredrick Zawislak
     2. This class provides the outline for an event including its name, date, time, and reserved tables
 
-4. Management.java
-    1. By Fredrick Zawislak
-    2. This class provides admin only privileges, allowing authorized users the ability of
-       setting the opening and closing hours and setting locked seats for events.
-
 5. Reservation.java
     1. By Jeremiah Tomasello
     2. This class holds data for individual reservations placed by the user. It holds all the relevent table, date/time, and party size
@@ -266,7 +261,6 @@ _(in alphabetical order)_
 | `InterfaceClient`               | Placeholder for client logic                                            |
 | `InterfaceDatabase`             | Declares all database operations and persistence methods.               |
 | `InterfaceEvent`                | Placeholder for event                                                   |
-| `InterfaceManagement`           | Declares admin operations, such as setting hours, price, and creating events.     |
 | `InterfaceReservation`          | Declares getter/setter structure for reservations.                      |
 | `InterfaceReservationManager`   | Declares creation/deletion methods for reservations.                    |
 | `InterfaceReservationValidator` | Placeholder for validation logic                                        |
@@ -275,7 +269,7 @@ _(in alphabetical order)_
 | `InterfaceUser`                 | Declares all getter/setter, creation/deletion, and persistence methods. |
 
 ### How to Run
-In any IDE (typically IntelliJ), you can run Server.java and in a separate terminal, run Client.java (can run multiple). You can interact with the reservation manager through the client with the console being the current I/O method.
+In any IDE (typically IntelliJ), you can run Server.java and in a separate terminal, run Client.java (can run multiple). You can interact with the reservation manager through the client with the interactive GUI.
 You can also go through and run the test cases inside the test folder.
 1. User can choose to either log in to an existing account, sign up to create a new account, or exit the program
     1. If the user tries to log in, they are prompted with entering their username and password, and if the account exists, are able to
@@ -294,19 +288,33 @@ You can also go through and run the test cases inside the test folder.
     5. If the user logs out, they are brought back to the first step.
     6. Deleting an account confirms with the user their intentions, and if so, deletes the user along with their reservations from the
        database
+3. The user `admin` has access to several different abilities
+   1. Can change open and close time
+   2. Can change table seating arrangement
+   3. Can create or delete events, effectively locking out tables during the allotted time
+   4. Can change the prices of different tables
 
 ### Test Cases
 For test cases, we have test files for each of the (current 10) classes. For our test cases, we sampled creating an editing a Database class. Firstly, we tested whether Table objects could be created with the specifications of there being two tables with four seats each. Then, to create a reservation, we created a test case for an example user with test values for their reservation to be created successfully. Additionally, we did tests on whether (after the reservation had been created) we could access and cancel a reservation. Finally, we also have test cases in the event that a reservation or any of its components can handle null or unexpected input values. This is just one example of the many test cases we have for each of the methods. Each varies depending on what is necessary to test.
 
+### Images
+### Logo
+![alt text](logo.png "Logo")
+### Restaurant Table Layout
+![alt text](tables.png "Table Layout")
+
+
 ### Submission Details
 | Deliverable          | Submitted By                                   |
-| -------------------- | ---------------------------------------------- |
+|----------------------|------------------------------------------------|
 | **Code & README**    | Jeremiah Tomasello on Vocareum & Brightspace   |
 | **Git Repository**   | Private GitHub Repository cloned into Vocareum |
 | **Peer Evaluations** | All members completed by deadline              |
+| **Report**           | Mainly done by Jeremiah Tomasello              |
+| **Presentation**     | All members participated equally               |
+
 
 ### Extra Notes
 - Our code should be thread safe in its current form.
-- The current GUI via console is subject to change.
 - Main.java is mostly obsolete now due to the client I/O
-- The only event is TestEvent right now
+- The only events are `TestEvent` and `JohnBirthday` right now
