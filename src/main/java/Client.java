@@ -417,12 +417,13 @@ public class Client implements InterfaceClient {
 
             String[] optionsArray = options.toArray(new String[0]);
 
+            ImageIcon tableIcon = new ImageIcon("tables.png");
             String choice = (String) JOptionPane.showInputDialog(
                     null,
                     "Select seating arrangement to edit:",
                     "Edit Seating",
                     JOptionPane.PLAIN_MESSAGE,
-                    null,
+                    tableIcon,
                     optionsArray,
                     null
             );
@@ -431,13 +432,37 @@ public class Client implements InterfaceClient {
 
             if (choice.equals("Add New Seat Size")) {
                 // Add new seat size
-                String seatsInput = JOptionPane.showInputDialog(null, "Enter number of seats:");
+                String seatsInput = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Enter number of seats:",
+                        "Seat Entry",
+                        JOptionPane.PLAIN_MESSAGE,
+                        tableIcon,
+                        null,
+                        null
+                );
                 if (seatsInput == null) return;
 
-                String quantityInput = JOptionPane.showInputDialog(null, "Enter quantity of tables:");
+                String quantityInput = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Enter quantity of tables:",
+                        "Quantity",
+                        JOptionPane.PLAIN_MESSAGE,
+                        tableIcon,
+                        null,
+                        null
+                );
                 if (quantityInput == null) return;
 
-                String priceInput = JOptionPane.showInputDialog(null, "Enter price:");
+                String priceInput = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Enter price:",
+                        "Price",
+                        JOptionPane.PLAIN_MESSAGE,
+                        tableIcon,
+                        null,
+                        null
+                );
                 if (priceInput == null) return;
 
                 try {
@@ -608,12 +633,13 @@ public class Client implements InterfaceClient {
 
                 String[] optionsArray = displayOptions.toArray(new String[0]);
 
+                ImageIcon tableIcon = new ImageIcon("tables.png");
                 String tableChoice = (String) JOptionPane.showInputDialog(
                         null,
                         "Currently selected " + selectedTables.size() + " table(s)\nSelect a table to add:",
                         "Select Tables",
                         JOptionPane.PLAIN_MESSAGE,
-                        null,
+                        tableIcon,
                         optionsArray,
                         null
                 );
@@ -933,7 +959,9 @@ public class Client implements InterfaceClient {
                 JOptionPane.showMessageDialog(null, "No available tables.");
                 return;
             }
-            userChoice = (String) JOptionPane.showInputDialog(null, "Select your table", "Table", JOptionPane.PLAIN_MESSAGE, null, availableTables, null);
+
+            ImageIcon tableIcon = new ImageIcon("tables.png");
+            userChoice = (String) JOptionPane.showInputDialog(null, "Select your table", "Table", JOptionPane.PLAIN_MESSAGE, tableIcon, availableTables, null);
 
             if (userChoice == null) {
                 writer.println("cancel");

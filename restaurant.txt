@@ -1,4 +1,4 @@
-open:830:close:2215
+open:800:close:2200
 INVALID LINE WITHOUT COLONS
-event:TestEvent:03/15/2025:1400:2
-event:JohnBirthday:03/15/2026:1400:60:61
+event:TestEvent:03/15/2025:1400:30:31:32
+event:JohnBirthday:03/15/2026:1200:22:23:24:37:38:39

@@ -8,3 +8,5 @@ ecco2k: password
 demonstration: password
 
 admin: password123
+admin123: password
+existing123: password
