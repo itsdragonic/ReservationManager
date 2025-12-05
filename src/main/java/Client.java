@@ -62,6 +62,12 @@ public class Client implements InterfaceClient {
         frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame1.setResizable(true);
 
+        ImageIcon logoIcon = new ImageIcon("logo.png");
+        JLabel logoLabel = new JLabel(logoIcon);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        logoLabel.setVerticalAlignment(SwingConstants.CENTER);
+        frame1.add(logoLabel, BorderLayout.NORTH);
+
         JButton loginButton = new JButton("Login");
         loginButton.setActionCommand("Login");
         loginButton.addActionListener(actionListener);
@@ -85,7 +91,7 @@ public class Client implements InterfaceClient {
         frame1.setVisible(true);
 
 
-        }
+    }
 
 
     public static void login(Socket socket) {
@@ -175,6 +181,13 @@ public class Client implements InterfaceClient {
 
             }
         };
+
+        ImageIcon logoIcon = new ImageIcon("logo.png");
+        JLabel logoLabel = new JLabel(logoIcon);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        logoLabel.setVerticalAlignment(SwingConstants.CENTER);
+        frame.add(logoLabel, BorderLayout.NORTH);
+        
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1280, 720);
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -217,10 +230,9 @@ public class Client implements InterfaceClient {
     }
 
     public static void joinEvent(Socket socket) {
-
         try {
             String eventName = JOptionPane.showInputDialog(null, "Enter event name");
-
+            if (eventName == null) return;
 
             writer.println("joinEvent");
             writer.println(currentUser.getUsername());
@@ -230,27 +242,42 @@ public class Client implements InterfaceClient {
             String line = reader.readLine();
 
             if (line.startsWith("Sorry") || line.equals("Event not found.")) {
-                JOptionPane.showMessageDialog(null, "Event not found. Please try again.");
+                JOptionPane.showMessageDialog(null, line);
                 return;
             }
 
-            // Print available tables
-            //System.out.println(line);
+            // Parse available tables from "Available tables: 1 2 3"
+            String[] parts = line.split(": ");
+            if (parts.length < 2) {
+                JOptionPane.showMessageDialog(null, "Error retrieving available tables.");
+                return;
+            }
 
-            //System.out.print("Enter table number: ");
-            //int table = Integer.parseInt(scanner.nextLine());
+            String[] availableTables = parts[1].trim().split(" ");
 
-            String temp = JOptionPane.showInputDialog(null, "Enter table number");
+            String tableChoice = (String) JOptionPane.showInputDialog(
+                    null,
+                    line + "\nSelect a table:",
+                    "Join Event",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    availableTables,
+                    null
+            );
 
-            int table = Integer.parseInt(temp);
+            if (tableChoice == null) return;
+
+            int table = Integer.parseInt(tableChoice);
 
             writer.println(table);
             writer.flush();
 
-            System.out.println(reader.readLine());
+            String result = reader.readLine();
+            JOptionPane.showMessageDialog(null, result);
 
         } catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
         }
     }
 
