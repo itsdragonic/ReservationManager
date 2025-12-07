@@ -1094,16 +1094,20 @@ public class Client implements InterfaceClient {
             return;
         }
 
-        // Send correct user to be deleted to Server
-        writer.println("deleteAccount");
-        writer.println(currentUser.getUsername());
-        writer.flush();
+        try {
+            // Send correct user to be deleted to Server
+            writer.println("deleteAccount");
+            writer.println(currentUser.getUsername());
+            writer.flush();
 
-        currentUser = null;
+            String result = reader.readLine();
+            currentUser = null;
 
-        JOptionPane.showMessageDialog(null, "Account deleted");
-        loggedIn = false;
-
+            JOptionPane.showMessageDialog(null, result);
+            loggedIn = false;
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Network error occurred.");
+        }
     }
 
     // Main method

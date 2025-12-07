@@ -384,6 +384,10 @@ public class Server implements InterfaceServer, Runnable {
                         }
 
                         writer.flush();
+                        synchronized (db) {
+                            db.reload();
+                        }
+
                         break;
                     }
 
@@ -466,6 +470,10 @@ public class Server implements InterfaceServer, Runnable {
                         }
 
                         writer.flush();
+                        synchronized (db) {
+                            db.reload();
+                        }
+
                         break;
                     }
 
@@ -517,6 +525,10 @@ public class Server implements InterfaceServer, Runnable {
                         }
 
                         writer.flush();
+                        synchronized (db) {
+                            db.reload();
+                        }
+
                         break;
                     }
 
@@ -568,6 +580,10 @@ public class Server implements InterfaceServer, Runnable {
                         }
 
                         writer.flush();
+                        synchronized (db) {
+                            db.reload();
+                        }
+
                         break;
                     }
 
@@ -669,6 +685,10 @@ public class Server implements InterfaceServer, Runnable {
                         }
 
                         writer.flush();
+                        synchronized (db) {
+                            db.reload();
+                        }
+
                         break;
                     }
 
@@ -742,6 +762,10 @@ public class Server implements InterfaceServer, Runnable {
                         }
 
                         writer.flush();
+                        synchronized (db) {
+                            db.reload();
+                        }
+
                         break;
                     }
 

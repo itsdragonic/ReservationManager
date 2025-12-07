@@ -1,12 +1,12 @@
 existing: password123
 TonySoprano: ilovegabagool
 coolguy: password
-ghost: password
+purduepete: boilerup
 
 ecco2k: password
 
 demonstration: password
 
 admin: password123
-admin123: password
+
 existing123: password

@@ -286,6 +286,19 @@ public class Database implements InterfaceDatabase {
         return availableTables;
     }
 
+    public synchronized void reload() {
+        // Clear existing data
+        tables.clear();
+        reservations.clear();
+        events.clear();
+        biggestSeating = 0;
+
+        // Reload everything
+        createTime();
+        createReservations();
+        createTables(this.reservations);
+    }
+
     public synchronized int getBiggestSeating() {
         return biggestSeating;
     }

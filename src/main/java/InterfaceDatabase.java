@@ -31,4 +31,5 @@ public interface InterfaceDatabase {
     ArrayList<Table> getUnreservedTables(String day, int time);
     int getBiggestSeating();
     ArrayList<Event> getEvents();
+    void reload();
 }
