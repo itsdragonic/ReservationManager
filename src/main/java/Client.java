@@ -194,7 +194,7 @@ public class Client implements InterfaceClient {
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         logoLabel.setVerticalAlignment(SwingConstants.CENTER);
         frame.add(logoLabel, BorderLayout.NORTH);
-        
+
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1280, 720);
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -927,8 +927,8 @@ public class Client implements InterfaceClient {
             }
             int resTime = Integer.parseInt(time);
 
-            String[] guestArray = new String[12];
-            for (int i = 0; i < 12; i++) {
+            String[] guestArray = new String[6];
+            for (int i = 0; i < 6; i++) {
                 guestArray[i] = "" + (i + 1);
             }
 
@@ -1022,15 +1022,6 @@ public class Client implements InterfaceClient {
             writer.println(table);
             writer.flush();
 
-            try {
-                String result = reader.readLine();
-                if (result != null && !result.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, result);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             // Display Server output on reservation creation
         } catch (IOException e) {
             e.printStackTrace();
@@ -1059,7 +1050,7 @@ public class Client implements InterfaceClient {
             String[] displayReservations = new String[reservationStrings.length];
             for (int i = 0; i < reservationStrings.length; i++) {
                 reservationStrings[i] = reservationStrings[i].substring(reservationStrings[i].indexOf(" ") + 1,
-                                reservationStrings[i].indexOf(','));
+                        reservationStrings[i].indexOf(','));
                 displayReservations[i] = ((i + 1) + ".) " + reservationStrings[i]);
 
             }
@@ -1074,16 +1065,16 @@ public class Client implements InterfaceClient {
 
 
 
-                //Check if reservationNum is a valid number
+            //Check if reservationNum is a valid number
 
-                // Send reservationID to server to be removed
-                writer.println("removeReservation");
-                writer.println(reservationStrings[num - 1]);
-                writer.flush();
+            // Send reservationID to server to be removed
+            writer.println("removeReservation");
+            writer.println(reservationStrings[num - 1]);
+            writer.flush();
 
-                reader.readLine();
+            reader.readLine();
 
-                JOptionPane.showMessageDialog(null, "Reservation cancelled.");
+            JOptionPane.showMessageDialog(null, "Reservation cancelled.");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1115,17 +1106,11 @@ public class Client implements InterfaceClient {
                 displayReservations[i] = ((i + 1) + ".) " + reservationStrings[i]);
             }
 
-                String userChoice = (String) JOptionPane.showInputDialog(null, "Current Reservations",
-                        "Reservations", JOptionPane.PLAIN_MESSAGE, null, displayReservations, null);
-                if (userChoice == null) {
-                    return;
-                }
-
-
-
-
-
-
+            String userChoice = (String) JOptionPane.showInputDialog(null, "Current Reservations",
+                    "Reservations", JOptionPane.PLAIN_MESSAGE, null, displayReservations, null);
+            if (userChoice == null) {
+                return;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1163,22 +1148,9 @@ public class Client implements InterfaceClient {
             writer = new PrintWriter(socket.getOutputStream(), true);
 
             // Starter code to repeat showing a menu based on whether the user is logged in
-            //System.out.println("Welcome to Reservation Manager!");
-            //while (running) {
-              //  if (currentUser == null) {
-                 //   signedOutMenu(socket);
-                //} else {
-                  //  mainMenu(socket);
-                //}
-          //  }
-
             signedOutMenu(socket);
 
 
-            //Close Client tools
-            System.out.println("Thank you for using the Reservation Manager!");
-            //writer.close();
-            //reader.close();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Couldn't connect to the server!","Connection Error" ,
                     JOptionPane.ERROR_MESSAGE);
