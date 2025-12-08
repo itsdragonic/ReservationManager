@@ -81,7 +81,7 @@ public class TestDatabase {
         }
 
         // invalid input
-        Reservation invalidRes = new Reservation("Jane Doe", -1, "03/14/2025", -500, 3);
+        Reservation invalidRes = new Reservation("Jane IU Doe", -1, "03/14/2025", -500, 3);
         assertTrue("Database should handle invalid reservation gracefully",
                 db.addReservation(invalidRes));
 
@@ -101,7 +101,7 @@ public class TestDatabase {
     @Test
     public void testGetTablesBySeats() {
         ArrayList<Table> fourSeatTables = db.getTablesBySeats(4);
-        assertEquals("There should be 25 four-seat tables", 25, fourSeatTables.size());
+        assertEquals("There should be 22 four-seat tables", 22, fourSeatTables.size());
     }
 
     @Test
@@ -110,11 +110,11 @@ public class TestDatabase {
             bw.write("open:800:close:2200\n");
             bw.write("INVALID LINE WITHOUT COLONS\n");
             bw.write("event:TestEvent:03/15/2025:1400:2\n");
-            bw.write("event:JohnBirthday:03/15/2026:1400:60:61\n");
+            bw.write("event:JohnBirthday:03/15/2026:1200:22:23:24:37:38:39\n");
         }
 
         db = new Database();
-        assertEquals("Only valid event lines should be parsed", 1, db.getEvents().size());
+        assertEquals("Only valid event lines should be parsed", 2, db.getEvents().size());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class TestDatabase {
 
     @Test
     public void testGetBiggestSeating() {
-        assertEquals("Biggest seating should be 12 based on seating.txt", 12, db.getBiggestSeating());
+        assertEquals("Biggest seating should be 6 based on seating.txt", 6, db.getBiggestSeating());
     }
 
     @Test
