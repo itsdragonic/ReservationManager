@@ -151,7 +151,7 @@ public class Server implements InterfaceServer, Runnable {
                         if (tableString.equals("cancel")) {
                             writer.println("Reservation cancelled!");
                             writer.flush();
-                            return;
+                            break;
                         }
 
                         int table;
@@ -159,7 +159,9 @@ public class Server implements InterfaceServer, Runnable {
                         try {
                             table = Integer.parseInt(tableString);
                         } catch (NumberFormatException e) {
-                            return;
+                            writer.println("Invalid table selection.");
+                            writer.flush();
+                            break;
                         }
 
                         // Send back result of adding the reservation to Client

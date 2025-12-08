@@ -952,6 +952,16 @@ public class Client implements InterfaceClient {
 
 
             String line = reader.readLine();
+
+            // Check if line is empty
+            if (line == null || line.trim().isEmpty() || !line.contains("Table")) {
+                JOptionPane.showMessageDialog(null, "No available tables for this time and party size.");
+                writer.println("cancel");
+                writer.flush();
+                String response = reader.readLine();
+                return;
+            }
+
             String[] availableTables = line.split(", ");
 
             String userChoice;
@@ -966,6 +976,13 @@ public class Client implements InterfaceClient {
             if (userChoice == null) {
                 writer.println("cancel");
                 writer.flush();
+
+                try {
+                    String response = reader.readLine();
+                    JOptionPane.showMessageDialog(null, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return;
             }
             String[] tableNumber = userChoice.split(" ");
@@ -975,10 +992,28 @@ public class Client implements InterfaceClient {
             // "Credit card payment"
             String card = JOptionPane.showInputDialog(null, "Enter credit card number (16 digits)", "Card", JOptionPane.PLAIN_MESSAGE);
             if (card == null) {
+                writer.println("cancel");
+                writer.flush();
+
+                try {
+                    String response = reader.readLine();
+                    JOptionPane.showMessageDialog(null, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return;
             }
             if (!card.matches("\\d{16}")) {
                 JOptionPane.showMessageDialog(null, "Invalid credit card. Reservation cancelled.");
+                writer.println("cancel");
+                writer.flush();
+
+                try {
+                    String response = reader.readLine();
+                    JOptionPane.showMessageDialog(null, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return;
             }
             JOptionPane.showMessageDialog(null, "Payment complete");
@@ -986,6 +1021,15 @@ public class Client implements InterfaceClient {
             // Send remaining reservation info
             writer.println(table);
             writer.flush();
+
+            try {
+                String result = reader.readLine();
+                if (result != null && !result.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, result);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             // Display Server output on reservation creation
         } catch (IOException e) {

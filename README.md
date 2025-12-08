@@ -288,7 +288,7 @@ You can also go through and run the test cases inside the test folder.
     5. If the user logs out, they are brought back to the first step.
     6. Deleting an account confirms with the user their intentions, and if so, deletes the user along with their reservations from the
        database
-3. The user `admin` has access to several different abilities
+3. The user `admin` (password: password123) has access to several different abilities
    1. Can change open and close time
    2. Can change table seating arrangement
    3. Can create or delete events, effectively locking out tables during the allotted time
@@ -305,13 +305,14 @@ For test cases, we have test files for each of the (current 10) classes. For our
 
 
 ### Submission Details
-| Deliverable          | Submitted By                                   |
-|----------------------|------------------------------------------------|
-| **Code & README**    | Jeremiah Tomasello on Vocareum & Brightspace   |
-| **Git Repository**   | Private GitHub Repository cloned into Vocareum |
-| **Peer Evaluations** | All members completed by deadline              |
-| **Report**           | Mainly done by Jeremiah Tomasello              |
-| **Presentation**     | All members participated equally               |
+| Deliverable          | Submitted By                                                         |
+|----------------------|----------------------------------------------------------------------|
+| **Code & README**    | Jeremiah Tomasello on Vocareum & Brightspace                         |
+| **Git Repository**   | Private GitHub Repository cloned into Vocareum                       |
+| **Peer Evaluations** | All members completed by deadline                                    |
+| **Presentation**     | Slides by Fredrick Zawislak, edited and submitted by Maximus Puckett |
+| **Report**           | Mainly done by Jeremiah Tomasello                                    |
+| **Presentation**     | All members participated equally                                     |
 
 
 ### Extra Notes
